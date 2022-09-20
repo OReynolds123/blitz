@@ -1,14 +1,14 @@
 //
-//  alphaDemo.swift
-//  Alpha_macOS
+//  blitz.swift
+//  blitz
 //
-//  Created by Capstone on 9/12/22.
+//  Created by Owen Reynolds on 9/12/22.
 //
 
 import SwiftUI
 import Vision
 
-struct alpha: View {
+struct blitz: View {
     @State private var image = NSImage()
     @State private var imagePath = ""
     @State private var scanText = "Extracted text..."
@@ -100,8 +100,8 @@ struct alpha: View {
     }
 }
 
-struct alphaDemo_Previews: PreviewProvider {
+struct blitz_Previews: PreviewProvider {
     static var previews: some View {
-        alpha()
+        blitz()
     }
 }

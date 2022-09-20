@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  Alpha_macOS
+//  ContentView
 //
-//  Created by Capstone on 9/12/22.
+//  Created by Owen Reynolds on 9/12/22.
 //
 
 import SwiftUI
@@ -11,7 +11,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                NavigationLink(destination: alpha()) {
+                NavigationLink(destination: blitz()) {
                     Text("LiveText API")
                         .frame(width: 150)
                 }

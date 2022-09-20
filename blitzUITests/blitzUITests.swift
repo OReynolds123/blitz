@@ -1,8 +1,8 @@
 //
-//  beta_macOSUITests.swift
-//  beta_macOSUITests
+//  blitzUITests.swift
+//  blitzUITests
 //
-//  Created by Capstone on 9/20/22.
+//  Created by Owen Reynolds on 9/20/22.
 //
 
 import XCTest

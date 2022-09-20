@@ -1,8 +1,8 @@
 //
 //  flashcard.swift
-//  Alpha_macOS
+//  flashcard
 //
-//  Created by Capstone on 9/12/22.
+//  Created by Owen Reynolds on 9/12/22.
 //
 
 import SwiftUI

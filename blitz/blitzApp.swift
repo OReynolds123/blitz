@@ -1,8 +1,8 @@
 //
-//  beta_macOSApp.swift
-//  beta_macOS
+//  blitzApp.swift
+//  blitzApp
 //
-//  Created by Capstone on 9/20/22.
+//  Created by Owen Reynolds on 9/20/22.
 //
 
 import SwiftUI

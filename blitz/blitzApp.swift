@@ -1,6 +1,6 @@
 //
 //  blitzApp.swift
-//  blitzApp
+//  blitz
 //
 //  Created by Owen Reynolds on 9/20/22.
 //

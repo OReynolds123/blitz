@@ -1,87 +1,20 @@
 //
 //  flashcard.swift
-//  flashcard
+//  blitz
 //
 //  Created by Owen Reynolds on 9/12/22.
 //
 
 import SwiftUI
 
-struct Card: Codable, Identifiable, Hashable {
-    let id: UUID
-    var front: String
-    var back: String
-    
-    init(id: UUID = UUID(), front: String, back: String) {
-        self.id = id
-        self.front = front
-        self.back = back
-    }
-      
-    static var example: Card {
-        Card(front: "Who is the longest serving US president?", back: "FDR")
-    }
-    static var example1: Card {
-        Card(front: "Who is the shortest serving US president?", back: "Not FDR")
-    }
-}
-struct Deck: Codable, Identifiable, Hashable {
-    let id: UUID
-    var name: String = ""
-    var deck = [Card]()
-    
-    init(id: UUID = UUID(), name: String, deck: [Card]) {
-        self.id = id
-        self.name = name
-        self.deck = deck
-    }
-    
-    static var example: Deck {
-        Deck(name: "example", deck: [Card.example, Card.example1])
-    }
-}
-
-struct flashcardView: View, Identifiable {
-    var id = UUID()
-    var card: Card
-    var removal: ((_ isCorrect: Bool) -> Void)?
-    
-    @State private var isShowingAnswer = false
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                .fill(Color.white)
-                .background(RoundedRectangle(cornerRadius: 25, style: .continuous).fill(Color.white))
-                .shadow(color: Color.black.opacity(0.2), radius: 5, x: 2, y: 2)
-            
-            VStack {
-                Text(card.front)
-                
-                if isShowingAnswer {
-                    Text(card.back)
-                        .padding(.top, 12)
-                }
-            }
-            .padding(25)
-            .multilineTextAlignment(.center)
-            .lineLimit(10)
-        }
-        .frame(width: 450, height: 250)
-//        .opacity(2 - Double(abs(offset.width / 50)))
-        .accessibility(addTraits: .isButton)
-        .onTapGesture { isShowingAnswer.toggle() }
-    }
-}
-
 
 struct flashcardDeck: View {
     @GestureState private var dragState = DragState.inactive
     
-    @State var cardViews: [flashcardView] = {
-        var views = [flashcardView]()
+    @State var cardViews: [cardView] = {
+        var views = [cardView]()
         for index in 0..<2 {
-            views.append(flashcardView(card: Deck.example.deck[index]))
+            views.append(cardView(card: deck.example.cards[index]))
         }
         return views
     }()
@@ -151,7 +84,7 @@ struct flashcardDeck: View {
         }
     }
     
-    private func isTopCard(cardView: flashcardView) -> Bool {
+    private func isTopCard(cardView: cardView) -> Bool {
         guard let index = cardViews.firstIndex(where: { $0.id == cardView.id }) else {
             return false
         }
@@ -161,7 +94,7 @@ struct flashcardDeck: View {
     private func moveCard() {
         cardViews.removeFirst()
         self.lastIndex += 1
-        let newCardView = flashcardView(card: Deck.example.deck[lastIndex % Deck.example.deck.count])
+        let newCardView = cardView(card: deck.example.cards[lastIndex % deck.example.cards.count])
         cardViews.append(newCardView)
     }
 }

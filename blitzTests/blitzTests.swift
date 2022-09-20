@@ -1,6 +1,6 @@
 //
 //  blitzTests.swift
-//  blitzTests
+//  blitz
 //
 //  Created by Owen Reynolds on 9/20/22.
 //

@@ -10,20 +10,14 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         NavigationView {
-            VStack {
-                NavigationLink(destination: blitz()) {
-                    Text("LiveText API")
-                        .frame(width: 150)
-                }
-                NavigationLink(destination: flashcardDeck()) {
-                    Text("Flashcard")
-                        .frame(width: 150)
+            List {
+                NavigationLink(destination: blitzHomeView().navigationTitle("Home")) {
+                    Label("Home", systemImage: "house")
                 }
             }
-            .frame(minWidth: 180, idealWidth: 180, maxWidth: 180, maxHeight: .infinity)
-            
+            blitzHomeView()
+                .navigationTitle("Blitz")
         }
-        .navigationTitle("Alpha Demo")
     }
 }
 

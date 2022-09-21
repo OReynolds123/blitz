@@ -2,7 +2,7 @@
 //  cardView.swift
 //  blitz
 //
-//  Created by Capstone on 9/20/22.
+//  Created by Owen Reynolds on 9/20/22.
 //
 
 import SwiftUI
@@ -25,9 +25,10 @@ struct cardView: View, Identifiable {
             
             VStack {
                 if !self.isFlipped {
-                    Text(self.card.front)
+                    webView(html: self.card.front)
+                        .frame(width: .infinity, height: 50)
                 } else {
-                    Text(self.card.back)
+                    webView(html: self.card.back)
                         .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
                 }
             }

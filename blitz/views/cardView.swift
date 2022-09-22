@@ -25,10 +25,9 @@ struct cardView: View, Identifiable {
             
             VStack {
                 if !self.isFlipped {
-                    webView(html: self.card.front)
-                        .frame(width: .infinity, height: 50)
+                    webView(content: self.card.front)
                 } else {
-                    webView(html: self.card.back)
+                    webView(content: self.card.back)
                         .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
                 }
             }

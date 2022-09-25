@@ -10,16 +10,17 @@ import SwiftUI
 
 struct deck: Codable, Identifiable, Hashable {
     let id: UUID
-    var name: String = ""
     var cards = [card]()
     
-    init(id: UUID = UUID(), name: String, cards: [card]) {
+    init(id: UUID = UUID(), cards: [card]) {
         self.id = id
-        self.name = name
         self.cards = cards
     }
-    
+        
     static var example: deck {
-        deck(name: "example", cards: [card.example, card.example1])
+        deck(cards: [card.example, card.example1])
+    }
+    static var example1: deck {
+        deck(cards: [card.example1, card.example])
     }
 }

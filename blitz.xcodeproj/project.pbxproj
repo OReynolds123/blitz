@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		791C3B8A28DE1F5200A7E6CE /* dataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B8928DE1F5200A7E6CE /* dataStore.swift */; };
+		791C3B8C28DE20D200A7E6CE /* user.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B8B28DE20D200A7E6CE /* user.swift */; };
+		791C3B9028E0E84700A7E6CE /* deckCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */; };
+		791C3B9228E0F0BF00A7E6CE /* blitzHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */; };
 		79A23C9728DA511500A1DA9E /* blitzApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23C9628DA511500A1DA9E /* blitzApp.swift */; };
 		79A23C9B28DA511500A1DA9E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79A23C9A28DA511500A1DA9E /* Assets.xcassets */; };
 		79A23C9E28DA511500A1DA9E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79A23C9D28DA511500A1DA9E /* Preview Assets.xcassets */; };
@@ -14,14 +18,12 @@
 		79A23CB328DA511500A1DA9E /* blitzUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23CB228DA511500A1DA9E /* blitzUITests.swift */; };
 		79A23CB528DA511500A1DA9E /* blitzUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23CB428DA511500A1DA9E /* blitzUITestsLaunchTests.swift */; };
 		79A23CCA28DA530900A1DA9E /* flashcard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23CC728DA530900A1DA9E /* flashcard.swift */; };
-		79A23CCB28DA530900A1DA9E /* blitz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23CC828DA530900A1DA9E /* blitz.swift */; };
 		79A23CCC28DA530900A1DA9E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23CC928DA530900A1DA9E /* ContentView.swift */; };
 		79B6653128DA776D00DFF00F /* deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653028DA776D00DFF00F /* deck.swift */; };
 		79B6653328DA77EB00DFF00F /* card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653228DA77EB00DFF00F /* card.swift */; };
 		79B6653628DA793A00DFF00F /* cardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653528DA793A00DFF00F /* cardView.swift */; };
 		79B6653828DA794400DFF00F /* deckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653728DA794400DFF00F /* deckView.swift */; };
 		79B6653A28DA80B200DFF00F /* cardStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653928DA80B200DFF00F /* cardStackView.swift */; };
-		79B6653C28DA886000DFF00F /* blitzHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653B28DA886000DFF00F /* blitzHomeView.swift */; };
 		79B6653F28DA8F5F00DFF00F /* data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653E28DA8F5F00DFF00F /* data.swift */; };
 		79B6654128DA923400DFF00F /* webView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6654028DA923400DFF00F /* webView.swift */; };
 /* End PBXBuildFile section */
@@ -44,6 +46,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		791C3B8928DE1F5200A7E6CE /* dataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dataStore.swift; sourceTree = "<group>"; };
+		791C3B8B28DE20D200A7E6CE /* user.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = user.swift; sourceTree = "<group>"; };
+		791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deckCreationView.swift; sourceTree = "<group>"; };
+		791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzHomeView.swift; sourceTree = "<group>"; };
 		79A23C9328DA511500A1DA9E /* blitz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blitz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		79A23C9628DA511500A1DA9E /* blitzApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzApp.swift; sourceTree = "<group>"; };
 		79A23C9A28DA511500A1DA9E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -55,14 +61,12 @@
 		79A23CB228DA511500A1DA9E /* blitzUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzUITests.swift; sourceTree = "<group>"; };
 		79A23CB428DA511500A1DA9E /* blitzUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		79A23CC728DA530900A1DA9E /* flashcard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = flashcard.swift; sourceTree = "<group>"; };
-		79A23CC828DA530900A1DA9E /* blitz.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = blitz.swift; sourceTree = "<group>"; };
 		79A23CC928DA530900A1DA9E /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		79B6653028DA776D00DFF00F /* deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deck.swift; sourceTree = "<group>"; };
 		79B6653228DA77EB00DFF00F /* card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = card.swift; sourceTree = "<group>"; };
 		79B6653528DA793A00DFF00F /* cardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cardView.swift; sourceTree = "<group>"; };
 		79B6653728DA794400DFF00F /* deckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deckView.swift; sourceTree = "<group>"; };
 		79B6653928DA80B200DFF00F /* cardStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cardStackView.swift; sourceTree = "<group>"; };
-		79B6653B28DA886000DFF00F /* blitzHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzHomeView.swift; sourceTree = "<group>"; };
 		79B6653E28DA8F5F00DFF00F /* data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = data.swift; sourceTree = "<group>"; };
 		79B6654028DA923400DFF00F /* webView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = webView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -119,7 +123,6 @@
 				79B6653428DA791200DFF00F /* views */,
 				79B6652F28DA774600DFF00F /* models */,
 				79A23CC928DA530900A1DA9E /* ContentView.swift */,
-				79A23CC828DA530900A1DA9E /* blitz.swift */,
 				79A23C9628DA511500A1DA9E /* blitzApp.swift */,
 				79A23C9A28DA511500A1DA9E /* Assets.xcassets */,
 				79A23C9F28DA511500A1DA9E /* blitz.entitlements */,
@@ -156,8 +159,9 @@
 		79B6652F28DA774600DFF00F /* models */ = {
 			isa = PBXGroup;
 			children = (
-				79B6653028DA776D00DFF00F /* deck.swift */,
 				79B6653228DA77EB00DFF00F /* card.swift */,
+				79B6653028DA776D00DFF00F /* deck.swift */,
+				791C3B8B28DE20D200A7E6CE /* user.swift */,
 			);
 			path = models;
 			sourceTree = "<group>";
@@ -165,11 +169,12 @@
 		79B6653428DA791200DFF00F /* views */ = {
 			isa = PBXGroup;
 			children = (
+				791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */,
+				79B6653728DA794400DFF00F /* deckView.swift */,
+				791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */,
 				79B6653528DA793A00DFF00F /* cardView.swift */,
 				79B6653928DA80B200DFF00F /* cardStackView.swift */,
-				79B6653728DA794400DFF00F /* deckView.swift */,
 				79A23CC728DA530900A1DA9E /* flashcard.swift */,
-				79B6653B28DA886000DFF00F /* blitzHomeView.swift */,
 				79B6654028DA923400DFF00F /* webView.swift */,
 			);
 			path = views;
@@ -179,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				79B6653E28DA8F5F00DFF00F /* data.swift */,
+				791C3B8928DE1F5200A7E6CE /* dataStore.swift */,
 			);
 			path = data;
 			sourceTree = "<group>";
@@ -313,18 +319,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79A23CCB28DA530900A1DA9E /* blitz.swift in Sources */,
 				79B6654128DA923400DFF00F /* webView.swift in Sources */,
+				791C3B9228E0F0BF00A7E6CE /* blitzHomeView.swift in Sources */,
 				79B6653A28DA80B200DFF00F /* cardStackView.swift in Sources */,
 				79B6653628DA793A00DFF00F /* cardView.swift in Sources */,
 				79B6653F28DA8F5F00DFF00F /* data.swift in Sources */,
-				79B6653C28DA886000DFF00F /* blitzHomeView.swift in Sources */,
+				791C3B8C28DE20D200A7E6CE /* user.swift in Sources */,
 				79A23CCA28DA530900A1DA9E /* flashcard.swift in Sources */,
 				79B6653828DA794400DFF00F /* deckView.swift in Sources */,
+				791C3B9028E0E84700A7E6CE /* deckCreationView.swift in Sources */,
 				79A23CCC28DA530900A1DA9E /* ContentView.swift in Sources */,
 				79B6653328DA77EB00DFF00F /* card.swift in Sources */,
 				79B6653128DA776D00DFF00F /* deck.swift in Sources */,
 				79A23C9728DA511500A1DA9E /* blitzApp.swift in Sources */,
+				791C3B8A28DE1F5200A7E6CE /* dataStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

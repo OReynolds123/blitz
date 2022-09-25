@@ -26,3 +26,12 @@ struct card: Codable, Identifiable, Hashable {
         card(front: "Who is the shortest serving US president?", back: "William Henry Harrison")
     }
 }
+
+struct cardBkg: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 25, style: .continuous)
+            .fill(Color.white)
+            .background(RoundedRectangle(cornerRadius: 25, style: .continuous).fill(Color.white))
+            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 2, y: 2)
+    }
+}

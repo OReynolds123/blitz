@@ -18,16 +18,13 @@ struct cardView: View, Identifiable {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                .fill(Color.white)
-                .background(RoundedRectangle(cornerRadius: 25, style: .continuous).fill(Color.white))
-                .shadow(color: Color.black.opacity(0.2), radius: 5, x: 2, y: 2)
+            cardBkg()
             
             VStack {
                 if !self.isFlipped {
-                    webView(content: self.card.front)
+                    Text(self.card.front)
                 } else {
-                    webView(content: self.card.back)
+                    Text(self.card.back)
                         .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
                 }
             }

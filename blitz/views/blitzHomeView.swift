@@ -2,15 +2,14 @@
 //  blitzHomeView.swift
 //  blitz
 //
-//  Created by Owen Reynolds on 9/20/22.
+//  Created by Capstone on 9/25/22.
 //
 
 import SwiftUI
-import WebKit
 
 struct blitzHomeView: View {
     var body: some View {
-        Text("")
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 

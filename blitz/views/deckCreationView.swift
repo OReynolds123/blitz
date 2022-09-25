@@ -26,6 +26,7 @@ struct deckCreation: View {
                 titleCardEdit(text: self.$deckTitle, width: self.width, height: self.height)
                     .padding(.horizontal)
                     .padding(.vertical, self.padding)
+                    .padding(.top, 20)
                 
                 // Cards
                 ForEachIndexed(self.$deckCards) { index, bind in
@@ -37,7 +38,7 @@ struct deckCreation: View {
                 // Spacer
                 Rectangle()
                     .foregroundColor(Color.clear)
-                    .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding)) * CGFloat(self.deckCards.count + 1)) - 60 - 20))
+                    .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
 
                 // Add Card
                 addCardEdit(width: self.width, height: self.height)
@@ -85,11 +86,9 @@ struct titleCardEdit: View {
 struct normalCardEdit: View {
     @Binding var cardArr: [card]
     @Binding var card: card
-    
     var width: CGFloat = 450
     var height: CGFloat = 250
-       
-    // Edit variables
+    
     @State private var isFlipped = false
     @State private var cameraBtnHover = false
     @State private var trashBtnHover = false
@@ -100,11 +99,11 @@ struct normalCardEdit: View {
             cardBkg()
             
             if !self.isFlipped {
-                CustomTextEditor(text: self.$card.front, placeholder: "Front", fontSize: 20.0)
+                CustomTextEditor(text: self.$card.front, placeholder: "Front", fontSize: 20.0, height: self.height)
                     .padding()
                     .animation(.none)
             } else {
-                CustomTextEditor(text: self.$card.back, placeholder: "Back", fontSize: 20.0)
+                CustomTextEditor(text: self.$card.back, placeholder: "Back", fontSize: 20.0, height: self.height)
                     .padding()
                     .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
                     .animation(.none)
@@ -235,6 +234,7 @@ struct normalCardEdit: View {
 struct addCardEdit: View {
     var width: CGFloat = 450
     var height: CGFloat = 250
+    
     @State private var isHover = false
     
     var body: some View {
@@ -263,14 +263,17 @@ struct addCardEdit: View {
 struct CustomTextEditor: View {
     @Binding var text: String
     var placeholder: String = ""
-    @State var fontSize: CGFloat
+    var fontSize: CGFloat
+    var height: CGFloat = 250
+    
     @State private var textEditorHeight: CGFloat
 
-    init(text: Binding<String>, placeholder: String = "", fontSize: CGFloat = 40.0) {
+    init(text: Binding<String>, placeholder: String = "", fontSize: CGFloat = 40.0, height: CGFloat = 250) {
         self._text = text
         self.placeholder = placeholder
         self.fontSize = fontSize
         self.textEditorHeight = fontSize + 17
+        self.height = height - 75
     }
     
     var body: some View {
@@ -301,7 +304,7 @@ struct CustomTextEditor: View {
                     .overlay(coverScrollOverlay, alignment: .trailing)
             }
         }
-        .frame(height: min(self.textEditorHeight, 200))
+        .frame(height: min(self.textEditorHeight, self.height))
     }
     
     private var coverScrollOverlay: some View {

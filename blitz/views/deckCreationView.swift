@@ -18,39 +18,84 @@ struct deckCreation: View {
 
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
+    
+    @State private var scrollIndex: Int?
         
     var body: some View {
-        GeometryReader { geo in
-            ScrollView(.vertical, showsIndicators: true) {
-                // Title Card
-                titleCardEdit(text: self.$deckTitle, width: self.width, height: self.height)
-                    .padding(.horizontal)
-                    .padding(.vertical, self.padding)
-                    .padding(.top, 20)
-                
-                // Cards
-                ForEachIndexed(self.$deckCards) { index, bind in
-                    normalCardEdit(cardArr: self.$deckCards, card: bind, width: self.width, height: self.height)
-                        .padding(.horizontal)
-                        .padding(.vertical, self.padding)
-                }
-                
-                // Spacer
-                Rectangle()
-                    .foregroundColor(Color.clear)
-                    .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
-
-                // Add Card
-                addCardEdit(width: self.width, height: self.height)
-                    .padding(.horizontal)
-                    .padding(.vertical, self.padding)
-                    .frame(height: 60, alignment: .top)
-                    .onTapGesture {
-                        let newCard = card(front: "", back: "")
-                        self.deckCards.append(newCard)
+        NavigationView {
+            VStack {
+                List {
+                    Label(deckTitle == "" ? "Deck Title" : deckTitle, systemImage: "home")
+                        .onTapGesture {
+                            self.scrollIndex = 0
+                        }
+                        
+                    ForEachIndexed(self.$deckCards) { index, elem in
+                        Label(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front, systemImage: "")
+                            .onTapGesture {
+                                self.scrollIndex = index + 1
+                            }
                     }
+                    
+                    Label("New Card", systemImage: "")
+                        .onTapGesture {
+                            self.deckCards.append(card(front: "", back: ""))
+                        }
+                }
+                    
+                Spacer()
+                
+                List {
+                    Label("Save", systemImage: "")
+                        .foregroundColor(.blue)
+                }
+                .frame(height: 30)
+                .offset(x: 0, y: -15)
             }
-            .frame(width: geo.size.width)
+            
+            GeometryReader { geo in
+                ScrollView(.vertical, showsIndicators: true) {
+                    ScrollViewReader { (proxy: ScrollViewProxy) in
+                        // Title Card
+                        titleCardEdit(text: self.$deckTitle, width: self.width, height: self.height)
+                            .padding(.horizontal)
+                            .padding(.vertical, self.padding)
+                            .padding(.top, 20)
+                            .id(0)
+
+                        // Cards
+                        ForEachIndexed(self.$deckCards) { index, bind in
+                            normalCardEdit(cardArr: self.$deckCards, card: bind, width: self.width, height: self.height)
+                                .padding(.horizontal)
+                                .padding(.vertical, self.padding)
+                                .id(index + 1)
+                        }
+                        .onChange(of: self.scrollIndex) { target in
+                            if let target = target {
+                                self.scrollIndex = nil
+                                withAnimation {
+                                    proxy.scrollTo(target, anchor: .center)
+                                }
+                            }
+                        }
+
+                        // Spacer
+                        Rectangle()
+                            .foregroundColor(Color.clear)
+                            .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
+
+                        // Add Card
+                        addCardEdit(width: self.width, height: self.height)
+                            .padding(.horizontal)
+                            .padding(.vertical, self.padding)
+                            .frame(height: 60, alignment: .top)
+                            .onTapGesture {
+                                self.deckCards.append(card(front: "", back: ""))
+                            }
+                    }
+                }
+                .frame(width: geo.size.width)
+            }
         }
     }
 }

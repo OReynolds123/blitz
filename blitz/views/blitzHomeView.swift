@@ -26,7 +26,7 @@ struct blitzHomeView: View {
                 ForEach(0..<Int(ceil(Double(self.decks.count + 1) / Double(self.cols))), id:\.self) { i in
                     HStack {
                         if i == 0 {
-                            addDeck(width: self.width, press: self.$showingAddDeck)
+                            addDeck(width: self.width, press: self.$deckCreationPresented)
 
                             ForEach(0..<(self.cols - 1), id:\.self) { j in
                                 if ((i * (self.cols - 1)) + j) < (self.decks.count + 1) {

@@ -13,7 +13,9 @@ struct blitzHomeView: View {
     @State private var decks: [deck] = [deck.example, deck.example1, deck.example2, deck.example3, deck.example3, deck.example2, deck.example1, deck.example, deck.example]
     @State private var cols: Int = 3
     
-    @State var showingAddDeck = false
+    @State var deckCreationPresented = false
+    @State var deckCreationSave = false
+    @State var deckCreationCancel = false
     
     var body: some View {
         GeometryReader { geo in
@@ -52,8 +54,8 @@ struct blitzHomeView: View {
             .onChange(of: geo.size.width, perform : { _width in
                 self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
             })
-            .sheet(isPresented: self.$showingAddDeck) {
-                deckCreation(saveBtn: self.$showingAddDeck)
+            .sheet(isPresented: self.$deckCreationPresented) {
+                deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
                     .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
             }
         }

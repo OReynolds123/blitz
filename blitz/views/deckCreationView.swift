@@ -13,6 +13,8 @@ import Vision
 struct deckCreation: View {
     var width: CGFloat
     @Binding var saveBtn: Bool
+    @Binding var cancelBtn: Bool
+    @Binding var presented: Bool
     
     private var padding: CGFloat = 7.0
 
@@ -24,10 +26,12 @@ struct deckCreation: View {
     @State private var addCardPress: Bool = false
     @State private var height: CGFloat
     
-    init(width: CGFloat = 450, saveBtn: Binding<Bool>) {
+    init(width: CGFloat = 450, saveBtn: Binding<Bool>, cancelBtn: Binding<Bool>, presented: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
         self._saveBtn = saveBtn
+        self._cancelBtn = cancelBtn
+        self._presented = presented
     }
         
     var body: some View {
@@ -57,14 +61,18 @@ struct deckCreation: View {
                 Label("Cancel", systemImage: "")
                     .foregroundColor(.red)
                     .onTapGesture {
-                        self.saveBtn.toggle()
+                        self.saveBtn = false
+                        self.cancelBtn = true
+                        self.presented = false
                     }
                     
                 Label("Save", systemImage: "")
                     .foregroundColor(.blue)
                     .padding(.bottom, 10)
                     .onTapGesture {
-                        self.saveBtn.toggle()
+                        self.saveBtn = true
+                        self.cancelBtn = false
+                        self.presented = false
                     }
             }
 
@@ -117,7 +125,7 @@ struct deckCreation: View {
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation(saveBtn: .constant(true))
+        deckCreation(saveBtn: .constant(true), cancelBtn: .constant(true), presented: .constant(true))
     }
 }
 

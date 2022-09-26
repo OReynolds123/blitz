@@ -11,24 +11,23 @@ struct ContentView: View {
     @StateObject private var store = dataStore()
 
     var body: some View {
-        NavigationView {
-            List {
-                NavigationLink(destination: blitzHomeView().navigationTitle("Home")) {
-                    Label("Home", systemImage: "house")
-                }
-                NavigationLink(destination: deckCreation().navigationTitle("Create Deck")) {
-                    Label("Create Deck", systemImage: "house")
-                }
-            }
+//        NavigationView {
+//            List {
+//                NavigationLink(destination: blitzHomeView().navigationTitle("Home")) {
+//                    Label("Home", systemImage: "house")
+//                }
+//                NavigationLink(destination: deckCreation().navigationTitle("Create Deck")) {
+//                    Label("Create Deck", systemImage: "house")
+//                }
+//            }
             blitzHomeView()
-                .navigationTitle("Blitz")
-        }
+//                .navigationTitle("Blitz")
+//        }
     }
 }
 
 struct ContentView_Preview: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .frame(width: 600, height: 600)
     }
 }

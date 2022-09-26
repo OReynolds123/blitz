@@ -11,8 +11,8 @@ import Vision
 
 // Create a Deck
 struct deckCreation: View {
-    var width: CGFloat = 450
-    var height: CGFloat = 250
+    var width: CGFloat
+    @Binding var saveBtn: Bool
     
     private var padding: CGFloat = 7.0
 
@@ -22,6 +22,13 @@ struct deckCreation: View {
     @State private var scrollIndex: Int?
     
     @State private var addCardPress: Bool = false
+    @State private var height: CGFloat
+    
+    init(width: CGFloat = 450, saveBtn: Binding<Bool>) {
+        self.width = width
+        self.height = self.width * (3/5)
+        self._saveBtn = saveBtn
+    }
         
     var body: some View {
         NavigationView {
@@ -50,6 +57,9 @@ struct deckCreation: View {
                 List {
                     Label("Save", systemImage: "")
                         .foregroundColor(.blue)
+                        .onTapGesture {
+                            self.saveBtn.toggle()
+                        }
                 }
                 .frame(height: 30)
                 .offset(x: 0, y: -15)
@@ -104,7 +114,7 @@ struct deckCreation: View {
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation()
+        deckCreation(saveBtn: .constant(true))
     }
 }
 

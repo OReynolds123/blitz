@@ -54,15 +54,18 @@ struct deckCreation: View {
 
                 Spacer()
 
-                List {
-                    Label("Save", systemImage: "")
-                        .foregroundColor(.blue)
-                        .onTapGesture {
-                            self.saveBtn.toggle()
-                        }
-                }
-                .frame(height: 30)
-                .offset(x: 0, y: -15)
+                Label("Cancel", systemImage: "")
+                    .foregroundColor(.red)
+                    .onTapGesture {
+                        self.saveBtn.toggle()
+                    }
+                    
+                Label("Save", systemImage: "")
+                    .foregroundColor(.blue)
+                    .padding(.bottom, 10)
+                    .onTapGesture {
+                        self.saveBtn.toggle()
+                    }
             }
 
             GeometryReader { geo in

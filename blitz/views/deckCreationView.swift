@@ -20,6 +20,8 @@ struct deckCreation: View {
     @State private var deckCards: [card] = []
     
     @State private var scrollIndex: Int?
+    
+    @State private var addCardPress: Bool = false
         
     var body: some View {
         NavigationView {
@@ -29,22 +31,22 @@ struct deckCreation: View {
                         .onTapGesture {
                             self.scrollIndex = 0
                         }
-                        
+
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Label(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front, systemImage: "")
                             .onTapGesture {
                                 self.scrollIndex = index + 1
                             }
                     }
-                    
+
                     Label("New Card", systemImage: "")
                         .onTapGesture {
                             self.deckCards.append(card(front: "", back: ""))
                         }
                 }
-                    
+
                 Spacer()
-                
+
                 List {
                     Label("Save", systemImage: "")
                         .foregroundColor(.blue)
@@ -52,12 +54,12 @@ struct deckCreation: View {
                 .frame(height: 30)
                 .offset(x: 0, y: -15)
             }
-            
+
             GeometryReader { geo in
                 ScrollView(.vertical, showsIndicators: true) {
                     ScrollViewReader { (proxy: ScrollViewProxy) in
                         // Title Card
-                        titleCardEdit(text: self.$deckTitle, width: self.width, height: self.height)
+                        titleCardEdit(text: self.$deckTitle, width: self.width)
                             .padding(.horizontal)
                             .padding(.vertical, self.padding)
                             .padding(.top, 20)
@@ -65,7 +67,7 @@ struct deckCreation: View {
 
                         // Cards
                         ForEachIndexed(self.$deckCards) { index, bind in
-                            normalCardEdit(cardArr: self.$deckCards, card: bind, width: self.width, height: self.height)
+                            normalCardEdit(cardArr: self.$deckCards, card: bind, width: self.width)
                                 .padding(.horizontal)
                                 .padding(.vertical, self.padding)
                                 .id(index + 1)
@@ -85,11 +87,11 @@ struct deckCreation: View {
                             .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
 
                         // Add Card
-                        addCardEdit(width: self.width, height: self.height)
+                        addCardEdit(width: self.width, press: self.$addCardPress)
                             .padding(.horizontal)
                             .padding(.vertical, self.padding)
                             .frame(height: 60, alignment: .top)
-                            .onTapGesture {
+                            .onChange(of: self.addCardPress) { _pressed in
                                 self.deckCards.append(card(front: "", back: ""))
                             }
                     }
@@ -110,20 +112,17 @@ struct deckCreation_Previews: PreviewProvider {
 // Title Card Edit View
 struct titleCardEdit: View {
     @Binding var text : String
-    
     var width: CGFloat = 450
-    var height: CGFloat = 250
+    
+    @State private var press: Bool = false
+    @State private var hover: Bool = false
     
     var body: some View {
-        ZStack {
-            cardBkg()
-            
+        let elem = AnyView(
             CustomTextEditor(text: self.$text, placeholder: "Deck Title")
                 .padding()
-
-        }
-        .frame(width: self.width, height: self.height)
-        .accessibility(addTraits: .isButton)
+        )
+        cardView_noFlip(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
     }
 }
 
@@ -132,94 +131,92 @@ struct normalCardEdit: View {
     @Binding var cardArr: [card]
     @Binding var card: card
     var width: CGFloat = 450
-    var height: CGFloat = 250
     
-    @State private var isFlipped = false
+    @State private var press: Bool = false
+    @State private var hover: Bool = false
+    
     @State private var cameraBtnHover = false
     @State private var trashBtnHover = false
     @State private var backBtnHover = false
     
     var body: some View {
-        ZStack {
-            cardBkg()
-            
-            if !self.isFlipped {
-                CustomTextEditor(text: self.$card.front, placeholder: "Front", fontSize: 20.0, height: self.height)
-                    .padding()
-                    .animation(.none)
-            } else {
-                CustomTextEditor(text: self.$card.back, placeholder: "Back", fontSize: 20.0, height: self.height)
-                    .padding()
-                    .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
-                    .animation(.none)
-            }
-            
-            // Edit Options
-            VStack(alignment: .center) {
-                HStack(alignment: .top) {
-                    Spacer()
-                    
+        let elem = AnyView(
+            ZStack {
+                if !self.press {
+                    CustomTextEditor(text: self.$card.front, placeholder: "Front", fontSize: 20.0)
+                        .padding()
+                        .animation(.none)
+                } else {
+                    CustomTextEditor(text: self.$card.back, placeholder: "Back", fontSize: 20.0)
+                        .padding()
+                        .rotation3DEffect(.degrees(self.press ? 180 : 0), axis: (x: -1, y: 0, z: 0))
+                        .animation(.none)
+                }
+                
+                // Edit Options
+                VStack(alignment: .center) {
                     HStack(alignment: .top) {
-                        if self.cameraBtnHover {
-                            Text("Insert Text")
-                        }
+                        Spacer()
                         
-                        Image(systemName: "camera.fill")
-                            .frame(width: 15, height: 15, alignment: .center)
-                            .foregroundColor(.black)
-                    }
-                    .onHover { hover in
-                        self.cameraBtnHover = hover
-                    }
-                }
-                .onTapGesture {  filePicker() }
-                
-                Spacer()
-                
-                HStack(alignment: .bottom) {
-                    HStack(alignment: .bottom) {
-                        Image(systemName: "trash.fill")
-                            .frame(width: 15, height: 15, alignment: .center)
-                            .foregroundColor(.red)
-                        
-                        if self.trashBtnHover {
-                            Text("Remove Card")
+                        HStack(alignment: .top) {
+                            if self.cameraBtnHover {
+                                Text("Insert Text")
+                            }
+                            
+                            Image(systemName: "camera.fill")
+                                .frame(width: 15, height: 15, alignment: .center)
+                                .foregroundColor(.black)
+                        }
+                        .onHover { hover in
+                            self.cameraBtnHover = hover
                         }
                     }
-                    .onHover { hover in
-                        self.trashBtnHover = hover
-                    }
-                    .onTapGesture {
-                        if let index = self.cardArr.firstIndex(of: self.card) {
-                            self.cardArr.remove(at: index)
-                        }
-                    }
+                    .onTapGesture {  filePicker() }
                     
                     Spacer()
                     
                     HStack(alignment: .bottom) {
-                        if self.backBtnHover {
-                            Text(self.isFlipped ? "Edit Front" : "Edit Back")
+                        HStack(alignment: .bottom) {
+                            Image(systemName: "trash.fill")
+                                .frame(width: 15, height: 15, alignment: .center)
+                                .foregroundColor(.red)
+                            
+                            if self.trashBtnHover {
+                                Text("Remove Card")
+                            }
+                        }
+                        .onHover { hover in
+                            self.trashBtnHover = hover
+                        }
+                        .onTapGesture {
+                            if let index = self.cardArr.firstIndex(of: self.card) {
+                                self.cardArr.remove(at: index)
+                            }
                         }
                         
-                        Image(systemName: "arrowshape.turn.up.right.fill")
-                            .frame(width: 15, height: 15, alignment: .center)
-                            .foregroundColor(.black)
+                        Spacer()
+                        
+                        HStack(alignment: .bottom) {
+                            if self.backBtnHover {
+                                Text(self.press ? "Edit Front" : "Edit Back")
+                            }
+                            
+                            Image(systemName: "arrowshape.turn.up.right.fill")
+                                .frame(width: 15, height: 15, alignment: .center)
+                                .foregroundColor(.black)
+                        }
+                        .onHover { hover in
+                            self.backBtnHover = hover
+                        }
+                        .onTapGesture { self.press.toggle() }
                     }
-                    .onHover { hover in
-                        self.backBtnHover = hover
-                    }
-                    .onTapGesture { self.isFlipped.toggle() }
                 }
+                .padding(14)
+                .frame(width: self.width)
+                .rotation3DEffect(.degrees(self.press ? 180 : 0), axis: (x: -1, y: 0, z: 0))
             }
-            .padding(14)
-            .frame(width: self.width, height: self.height)
-            .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
-        }
-        .frame(width: self.width, height: self.height)
-        .accessibility(addTraits: .isButton)
-        .rotation3DEffect(.degrees(self.isFlipped ? 180 : 0), axis: (x: -1, y: 0, z: 0))
-        .animation(.interpolatingSpring(stiffness: 180, damping: 100))
+        )
+        cardView_noBindings(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
     }
     
     private func filePicker() {
@@ -250,7 +247,7 @@ struct normalCardEdit: View {
                     }
                     
                     DispatchQueue.main.async {
-                        if !self.isFlipped {
+                        if !self.press {
                             self.card.front = self.card.front + ocrText
                         } else {
                             self.card.back = self.card.back + ocrText
@@ -278,28 +275,18 @@ struct normalCardEdit: View {
 // Add Card View
 struct addCardEdit: View {
     var width: CGFloat = 450
-    var height: CGFloat = 250
+    @Binding var press: Bool
     
-    @State private var isHover = false
+    @State private var hover: Bool = false
     
     var body: some View {
-        ZStack(alignment: .top) {
-            cardBkg()
-            
+        let elem = AnyView(
             Text("Add Card")
                 .font(.title)
                 .foregroundColor(Color.blue)
-                .offset(x: 0, y: 15)
-                
-        }
-        .frame(width: self.width, height: self.height)
-        .accessibility(addTraits: .isButton)
-        .onHover { hover in
-            isHover = hover
-        }
-        .animation(.spring())
-        .offset(x: 0, y: isHover ? -10 : 0)
-        .scaleEffect(isHover ? 1.01 : 1)
+                .offset(x: 0, y: -(self.width / 4))
+        )
+        cardView_button(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
     }
 }
 
@@ -307,9 +294,9 @@ struct addCardEdit: View {
 // Custom Text Editor
 struct CustomTextEditor: View {
     @Binding var text: String
-    var placeholder: String = ""
+    var placeholder: String
     var fontSize: CGFloat
-    var height: CGFloat = 250
+    var height: CGFloat
     
     @State private var textEditorHeight: CGFloat
 

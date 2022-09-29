@@ -18,45 +18,63 @@ struct blitzHomeView: View {
     @State var deckCreationCancel = false
     
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                Color.clear
-                    .frame(width: geo.size.width - 14, height: 0)
-                    
-                ForEach(0..<Int(ceil(Double(self.decks.count + 1) / Double(self.cols))), id:\.self) { i in
-                    HStack {
-                        if i == 0 {
-                            addDeck(width: self.width, press: self.$deckCreationPresented)
+        NavigationView {
+            VStack {
+                Label("Home", systemImage: "house")
+                    .foregroundColor(.black)
+                    .padding(.top, 15)
+                
+                Divider().padding(.horizontal, 20)
+                
+                Label("New Deck", systemImage: "")
+                    .padding(.top, 10)
+                    .onTapGesture {
+                        self.deckCreationPresented.toggle()
+                    }
+                
+                Spacer()
+            }
+        
+            GeometryReader { geo in
+                ScrollView {
+                    Color.clear
+                        .frame(width: geo.size.width - 14, height: 0)
+                        
+                    ForEach(0..<Int(ceil(Double(self.decks.count + 1) / Double(self.cols))), id:\.self) { i in
+                        HStack {
+                            if i == 0 {
+                                addDeck(width: self.width, press: self.$deckCreationPresented)
 
-                            ForEach(0..<(self.cols - 1), id:\.self) { j in
-                                if ((i * (self.cols - 1)) + j) < (self.decks.count + 1) {
-                                    cardStack(title: self.decks[(i * (self.cols - 1)) + j].title, width: self.width)
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 10)
+                                ForEach(0..<(self.cols - 1), id:\.self) { j in
+                                    if ((i * (self.cols - 1)) + j) < (self.decks.count + 1) {
+                                        cardStack(title: self.decks[(i * (self.cols - 1)) + j].title, width: self.width)
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 10)
+                                    }
                                 }
-                            }
-                        } else {
-                            ForEach(0..<self.cols, id:\.self) { j in
-                                if ((i * self.cols) + j - 1) < (self.decks.count) {
-                                    cardStack(title: self.decks[(i * self.cols) + j - 1].title, width: self.width)
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 10)
+                            } else {
+                                ForEach(0..<self.cols, id:\.self) { j in
+                                    if ((i * self.cols) + j - 1) < (self.decks.count) {
+                                        cardStack(title: self.decks[(i * self.cols) + j - 1].title, width: self.width)
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 10)
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal, 10)
+                        .frame(width: geo.size.width - 14)
                     }
-                    .padding(.horizontal, 10)
-                    .frame(width: geo.size.width - 14)
+                    
                 }
-                
-            }
-            .frame(width: geo.size.width)
-            .onChange(of: geo.size.width, perform : { _width in
-                self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
-            })
-            .sheet(isPresented: self.$deckCreationPresented) {
-                deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
-                    .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                .frame(width: geo.size.width)
+                .onChange(of: geo.size.width, perform : { _width in
+                    self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
+                })
+                .sheet(isPresented: self.$deckCreationPresented) {
+                    deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
+                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                }
             }
         }
     }
@@ -98,7 +116,7 @@ struct cardStack: View {
     @State private var hover: Bool = false
     
     @State private var height: CGFloat
-    @State private var offsetAmount: CGFloat = 10
+    @State private var offsetAmount: CGFloat = 5
     @State private var cardAmount = 3
     
     init(title: String, width: CGFloat = 450) {

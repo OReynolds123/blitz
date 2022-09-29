@@ -37,6 +37,18 @@ struct deckCreation: View {
     var body: some View {
         NavigationView {
             VStack {
+                Label("Home", systemImage: "house")
+                    .foregroundColor(.black)
+                    .padding(.top, 15)
+                    .padding(.bottom, 5)
+                    .onTapGesture {
+                        self.saveBtn = false
+                        self.cancelBtn = true
+                        self.presented = false
+                    }
+                
+                Divider().padding(.horizontal, 20)
+                
                 List {
                     Label(deckTitle == "" ? "Deck Title" : deckTitle, systemImage: "home")
                         .onTapGesture {
@@ -57,9 +69,12 @@ struct deckCreation: View {
                 }
 
                 Spacer()
+                
+                Divider().padding(.horizontal, 20)
 
                 Label("Cancel", systemImage: "")
                     .foregroundColor(.red)
+                    .padding(.vertical, 5)
                     .onTapGesture {
                         self.saveBtn = false
                         self.cancelBtn = true
@@ -68,7 +83,7 @@ struct deckCreation: View {
                     
                 Label("Save", systemImage: "")
                     .foregroundColor(.blue)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 15)
                     .onTapGesture {
                         self.saveBtn = true
                         self.cancelBtn = false

@@ -11,7 +11,7 @@ import SwiftUI
 struct blitzApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            blitzHomeView()
         }
     }
 }

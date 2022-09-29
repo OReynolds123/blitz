@@ -76,10 +76,10 @@ struct blitzHomeView: View {
                         deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
                             .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                     }
-                    .sheet(isPresented: self.$deckTestPresented) {
-                        deckTestView(editBtn: self.$deckTestEdit, presented: self.$deckTestPresented, deck: .constant(deck.example))
-                            .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                    }
+//                    .sheet(isPresented: self.$deckTestPresented) {
+//                        deckTestView(editBtn: self.$deckTestEdit, presented: self.$deckTestPresented, currDeck: .constant(deck.example))
+//                            .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+//                    }
                 }
             }
         }

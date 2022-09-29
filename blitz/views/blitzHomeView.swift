@@ -67,19 +67,18 @@ struct blitzHomeView: View {
                         .padding(.horizontal, 10)
                         .frame(width: geo.size.width - 14)
                     }
-                    
-                }
-                .frame(width: geo.size.width)
-                .onChange(of: geo.size.width, perform : { _width in
-                    self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
-                })
-                .sheet(isPresented: self.$deckCreationPresented) {
-                    deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
-                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                }
-                .sheet(isPresented: self.$deckTestPresented) {
-                    deckTestView(presented: self.$deckTestPresented)
-                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                    .frame(width: geo.size.width)
+//                    .onChange(of: geo.size.width, perform : { _width in
+//                        self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
+//                    })
+                    .sheet(isPresented: self.$deckCreationPresented) {
+                        deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
+                            .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                    }
+                    .sheet(isPresented: self.$deckTestPresented) {
+                        deckTestView(presented: self.$deckTestPresented)
+                            .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                    }
                 }
             }
         }

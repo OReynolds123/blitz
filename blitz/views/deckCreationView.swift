@@ -22,7 +22,6 @@ struct deckCreation: View {
     @State private var deckCards: [card] = []
     
     @State private var scrollIndex: Int?
-    
     @State private var addCardPress: Bool = false
     @State private var height: CGFloat
     

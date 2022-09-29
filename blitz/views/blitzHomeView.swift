@@ -18,6 +18,7 @@ struct blitzHomeView: View {
     @State var deckCreationCancel = false
     
     @State var deckTestPresented = false
+    @State var deckTestEdit = false
     
     var body: some View {
         NavigationView {
@@ -76,7 +77,7 @@ struct blitzHomeView: View {
                             .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                     }
                     .sheet(isPresented: self.$deckTestPresented) {
-                        deckTestView(presented: self.$deckTestPresented)
+                        deckTestView(editBtn: self.$deckTestEdit, presented: self.$deckTestPresented, deck: .constant(deck.example))
                             .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                     }
                 }

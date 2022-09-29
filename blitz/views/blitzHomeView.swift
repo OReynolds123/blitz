@@ -17,6 +17,8 @@ struct blitzHomeView: View {
     @State var deckCreationSave = false
     @State var deckCreationCancel = false
     
+    @State var deckTestPresented = false
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -47,7 +49,7 @@ struct blitzHomeView: View {
 
                                 ForEach(0..<(self.cols - 1), id:\.self) { j in
                                     if ((i * (self.cols - 1)) + j) < (self.decks.count + 1) {
-                                        cardStack(title: self.decks[(i * (self.cols - 1)) + j].title, width: self.width)
+                                        cardStack(title: self.decks[(i * (self.cols - 1)) + j].title, width: self.width, press: self.$deckTestPresented)
                                             .padding(.horizontal, 5)
                                             .padding(.vertical, 10)
                                     }
@@ -55,7 +57,7 @@ struct blitzHomeView: View {
                             } else {
                                 ForEach(0..<self.cols, id:\.self) { j in
                                     if ((i * self.cols) + j - 1) < (self.decks.count) {
-                                        cardStack(title: self.decks[(i * self.cols) + j - 1].title, width: self.width)
+                                        cardStack(title: self.decks[(i * self.cols) + j - 1].title, width: self.width, press: self.$deckTestPresented)
                                             .padding(.horizontal, 5)
                                             .padding(.vertical, 10)
                                     }
@@ -73,6 +75,10 @@ struct blitzHomeView: View {
                 })
                 .sheet(isPresented: self.$deckCreationPresented) {
                     deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
+                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                }
+                .sheet(isPresented: self.$deckTestPresented) {
+                    deckTestView(presented: self.$deckTestPresented)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
             }
@@ -112,17 +118,18 @@ struct cardStack: View {
     var title: String
     var width: CGFloat
     
-    @State private var press: Bool = false
+    @Binding var press: Bool
     @State private var hover: Bool = false
     
     @State private var height: CGFloat
     @State private var offsetAmount: CGFloat = 5
     @State private var cardAmount = 3
     
-    init(title: String, width: CGFloat = 450) {
+    init(title: String, width: CGFloat = 450, press: Binding<Bool>) {
         self.title = title
         self.width = width
         self.height = self.width * (3/5)
+        self._press = press
     }
     
     var body: some View {

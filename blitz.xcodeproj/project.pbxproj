@@ -21,7 +21,7 @@
 		79B6653128DA776D00DFF00F /* deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653028DA776D00DFF00F /* deck.swift */; };
 		79B6653328DA77EB00DFF00F /* card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653228DA77EB00DFF00F /* card.swift */; };
 		79B6653628DA793A00DFF00F /* cardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653528DA793A00DFF00F /* cardView.swift */; };
-		79B6653828DA794400DFF00F /* deckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653728DA794400DFF00F /* deckView.swift */; };
+		79B6653828DA794400DFF00F /* deckTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653728DA794400DFF00F /* deckTestView.swift */; };
 		79B6653F28DA8F5F00DFF00F /* data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6653E28DA8F5F00DFF00F /* data.swift */; };
 		79B6654128DA923400DFF00F /* _webView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B6654028DA923400DFF00F /* _webView.swift */; };
 /* End PBXBuildFile section */
@@ -62,7 +62,7 @@
 		79B6653028DA776D00DFF00F /* deck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deck.swift; sourceTree = "<group>"; };
 		79B6653228DA77EB00DFF00F /* card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = card.swift; sourceTree = "<group>"; };
 		79B6653528DA793A00DFF00F /* cardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cardView.swift; sourceTree = "<group>"; };
-		79B6653728DA794400DFF00F /* deckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deckView.swift; sourceTree = "<group>"; };
+		79B6653728DA794400DFF00F /* deckTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deckTestView.swift; sourceTree = "<group>"; };
 		79B6653E28DA8F5F00DFF00F /* data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = data.swift; sourceTree = "<group>"; };
 		79B6654028DA923400DFF00F /* _webView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _webView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -165,7 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */,
-				79B6653728DA794400DFF00F /* deckView.swift */,
+				79B6653728DA794400DFF00F /* deckTestView.swift */,
 				791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */,
 				79B6653528DA793A00DFF00F /* cardView.swift */,
 				79A23CC728DA530900A1DA9E /* flashcard.swift */,
@@ -319,7 +319,7 @@
 				79B6653F28DA8F5F00DFF00F /* data.swift in Sources */,
 				791C3B8C28DE20D200A7E6CE /* user.swift in Sources */,
 				79A23CCA28DA530900A1DA9E /* flashcard.swift in Sources */,
-				79B6653828DA794400DFF00F /* deckView.swift in Sources */,
+				79B6653828DA794400DFF00F /* deckTestView.swift in Sources */,
 				791C3B9028E0E84700A7E6CE /* deckCreationView.swift in Sources */,
 				79B6653328DA77EB00DFF00F /* card.swift in Sources */,
 				79B6653128DA776D00DFF00F /* deck.swift in Sources */,

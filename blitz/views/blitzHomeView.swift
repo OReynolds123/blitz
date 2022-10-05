@@ -48,7 +48,7 @@ struct blitzHomeView: View {
             
             GeometryReader { geo in
                 ScrollView(.vertical) {
-                    LazyVGrid(columns: [GridItem(.fixed(self.width)), GridItem(.fixed(self.width)), GridItem(.fixed(self.width))]) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum:self.width), spacing: 10, alignment: .leading)]) {
                         addDeck(width: self.width)
                             .onTapGesture {
                                 createDeck()
@@ -72,8 +72,8 @@ struct blitzHomeView: View {
                     deckTestView(index: self.clickedDeck, testPresented: self.$deckTestPresented, creationPresented: self.$deckCreationPresented)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
-            }
-        }
+            } // geo
+        } // nav
         .onChange(of: self.deckCreationPresented) { _bind in
             userStore.load { result in
                 switch result {
@@ -94,7 +94,8 @@ struct blitzHomeView: View {
                 }
             }
         }
-    }
+        .frame(minWidth: 800)
+    } // body
     
     private func createDeck() {
         self.userDataStore.userData.append(deck: deck())

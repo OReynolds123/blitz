@@ -408,7 +408,7 @@ struct CustomTextEditor: View {
     private var coverScrollOverlay: some View {
         Rectangle()
             .frame(width: 20)
-            .foregroundColor(Color(NSColor.windowBackgroundColor))
+            .foregroundColor(Color(NSColor.white))
     }
 }
 extension NSTextView {

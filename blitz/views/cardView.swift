@@ -121,7 +121,7 @@ struct cardStruct: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: self.radius, style: .continuous)
-                .fill(Color(NSColor.windowBackgroundColor))
+                .fill(Color(NSColor.white))
                 .background(RoundedRectangle(cornerRadius: self.radius, style: .continuous).fill(Color(NSColor.windowBackgroundColor)))
                 .shadow(color: Color.black.opacity(0.2), radius: (self.radius / 5), x: 2, y: 2)
             

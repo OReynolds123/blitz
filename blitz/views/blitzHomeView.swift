@@ -8,83 +8,145 @@
 import SwiftUI
 
 struct blitzHomeView: View {
-    var width: CGFloat = 200
-    
-    @State private var decks: [deck] = [deck.example, deck.example1, deck.example2, deck.example3, deck.example3, deck.example2, deck.example1, deck.example, deck.example]
-    @State private var cols: Int = 3
+    @StateObject private var userDataStore = userStore()
     
     @State var deckCreationPresented = false
-    @State var deckCreationSave = false
-    @State var deckCreationCancel = false
-    
     @State var deckTestPresented = false
-    @State var deckTestEdit = false
+    
+    @State private var clickedDeck: Int = 0
+    @State private var cols: Int = 3
+    
+    var width: CGFloat = 200
     
     var body: some View {
         NavigationView {
             VStack {
                 Label("Home", systemImage: "house")
-                    .foregroundColor(.black)
+                    .foregroundColor(Color(NSColor.headerTextColor))
                     .padding(.top, 15)
+                    .padding(.bottom, 5)
                 
                 Divider().padding(.horizontal, 20)
                 
-                Label("New Deck", systemImage: "")
-                    .padding(.top, 10)
-                    .onTapGesture {
-                        self.deckCreationPresented.toggle()
+                List {
+                    ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
+                        Label(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title, systemImage: "")
+                            .onTapGesture {
+                                self.clickedDeck = index
+                                self.deckTestPresented = true
+                            }
                     }
+                    
+                    Label("New Deck", systemImage: "")
+                        .onTapGesture {
+                            createDeck()
+                        }
+                }
                 
                 Spacer()
             }
-        
+            
             GeometryReader { geo in
-                ScrollView {
-                    Color.clear
-                        .frame(width: geo.size.width - 14, height: 0)
-                        
-                    ForEach(0..<Int(ceil(Double(self.decks.count + 1) / Double(self.cols))), id:\.self) { i in
-                        HStack {
-                            if i == 0 {
-                                addDeck(width: self.width, press: self.$deckCreationPresented)
-
-                                ForEach(0..<(self.cols - 1), id:\.self) { j in
-                                    if ((i * (self.cols - 1)) + j) < (self.decks.count + 1) {
-                                        cardStack(title: self.decks[(i * (self.cols - 1)) + j].title, width: self.width, press: self.$deckTestPresented)
-                                            .padding(.horizontal, 5)
-                                            .padding(.vertical, 10)
-                                    }
-                                }
-                            } else {
-                                ForEach(0..<self.cols, id:\.self) { j in
-                                    if ((i * self.cols) + j - 1) < (self.decks.count) {
-                                        cardStack(title: self.decks[(i * self.cols) + j - 1].title, width: self.width, press: self.$deckTestPresented)
-                                            .padding(.horizontal, 5)
-                                            .padding(.vertical, 10)
-                                    }
-                                }
+                ScrollView(.vertical) {
+                    LazyVGrid(columns: [GridItem(.fixed(self.width)), GridItem(.fixed(self.width)), GridItem(.fixed(self.width))]) {
+                        addDeck(width: self.width)
+                            .onTapGesture {
+                                createDeck()
                             }
+                        
+                        ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
+                            cardStack(title: elem.title.wrappedValue, width: self.width)
+                                .onTapGesture {
+                                    self.clickedDeck = index
+                                    self.deckTestPresented = true
+                                }
                         }
-                        .padding(.horizontal, 10)
-                        .frame(width: geo.size.width - 14)
                     }
-                    .frame(width: geo.size.width)
-//                    .onChange(of: geo.size.width, perform : { _width in
-//                        self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
-//                    })
-                    .sheet(isPresented: self.$deckCreationPresented) {
-                        deckCreation(saveBtn: self.$deckCreationSave, cancelBtn: self.$deckCreationCancel, presented: self.$deckCreationPresented)
-                            .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                    }
-//                    .sheet(isPresented: self.$deckTestPresented) {
-//                        deckTestView(editBtn: self.$deckTestEdit, presented: self.$deckTestPresented, currDeck: .constant(deck.example))
-//                            .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-//                    }
+                    .padding()
+                }
+                .sheet(isPresented: self.$deckCreationPresented) {
+                    deckCreation(index: self.clickedDeck, creationPresented: self.$deckCreationPresented, testPresented: self.$deckTestPresented)
+                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                }
+                .sheet(isPresented: self.$deckTestPresented) {
+                    deckTestView(index: self.clickedDeck, testPresented: self.$deckTestPresented, creationPresented: self.$deckCreationPresented)
+                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                }
+            }
+        }
+        .onChange(of: self.deckCreationPresented) { _bind in
+            userStore.load { result in
+                switch result {
+                case .failure(let error):
+                    fatalError(error.localizedDescription)
+                case .success(let userData):
+                    self.userDataStore.userData = userData
+                }
+            }
+        }
+        .onAppear {
+            userStore.load { result in
+                switch result {
+                case .failure(let error):
+                    fatalError(error.localizedDescription)
+                case .success(let userData):
+                    self.userDataStore.userData = userData
                 }
             }
         }
     }
+    
+    private func createDeck() {
+        self.userDataStore.userData.append(deck: deck())
+        userStore.save(user: self.userDataStore.userData) { result in
+            switch result {
+            case .failure(let error):
+                fatalError(error.localizedDescription)
+            case .success(let uuid):
+                print(uuid)
+            }
+        }
+        self.clickedDeck = self.userDataStore.userData.decks.count - 1
+        self.deckCreationPresented = true
+    }
 }
+            
+            
+//                    ForEach(0..<Int(ceil(Double(self.userDataDecks.count + 1) / Double(self.cols))), id:\.self) { i in
+//                        HStack {
+//                            if i == 0 {
+//                                addDeck(width: self.width, press: self.$deckCreationPresented)
+//
+//                                ForEach(0..<(self.cols - 1), id:\.self) { j in
+//                                    if ((i * (self.cols - 1)) + j) < (self.userDataDecks.count + 1) {
+//                                        cardStack(title: self.userDataDecks[(i * (self.cols - 1)) + j].title, width: self.width, press: self.$deckTestPresented)
+//                                            .padding(.horizontal, 5)
+//                                            .padding(.vertical, 10)
+//                                            .onTapGesture {
+//                                                self.clickedDeck = (i * (self.cols - 1)) + j
+//                                            }
+//                                    }
+//                                }
+//                            } else {
+//                                ForEach(0..<self.cols, id:\.self) { j in
+//                                    if ((i * self.cols) + j - 1) < (self.userDataDecks.count) {
+//                                        cardStack(title: self.userDataDecks[(i * self.cols) + j - 1].title, width: self.width, press: self.$deckTestPresented)
+//                                            .padding(.horizontal, 5)
+//                                            .padding(.vertical, 10)
+//                                            .onTapGesture {
+//                                                self.clickedDeck = (i * self.cols) + j - 1
+//                                            }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        .padding(.horizontal, 10)
+//                        .frame(width: geo.size.width - 14)
+//                    }
+//                    .frame(width: geo.size.width)
+//                    .onChange(of: geo.size.width, perform : { _width in
+//                        self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
+//                    })
 
 struct blitzHomeView_Previews: PreviewProvider {
     static var previews: some View {
@@ -97,7 +159,6 @@ struct blitzHomeView_Previews: PreviewProvider {
 struct addDeck: View {
     var width: CGFloat = 450
     
-    @Binding var press: Bool
     @State private var hover: Bool = false
     
     var body: some View {
@@ -109,7 +170,11 @@ struct addDeck: View {
                 .foregroundColor(.blue)
                 .frame(width: self.width - 100, height: self.width - 100)
         )
-        cardView_button(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
+        cardStruct(elem: elem, width: self.width)
+            .onHover { hover in self.hover = hover }
+            .offset(x: 0, y: self.hover ? -10 : 0)
+            .scaleEffect(self.hover ? 1.01 : 1)
+            .animation(.interpolatingSpring(stiffness: 180, damping: 100))
     }
 }
 
@@ -118,18 +183,16 @@ struct cardStack: View {
     var title: String
     var width: CGFloat
     
-    @Binding var press: Bool
-    @State private var hover: Bool = false
-    
     @State private var height: CGFloat
     @State private var offsetAmount: CGFloat = 5
     @State private var cardAmount = 3
     
-    init(title: String, width: CGFloat = 450, press: Binding<Bool>) {
+    @State private var hover: Bool = false
+    
+    init(title: String, width: CGFloat = 450) {
         self.title = title
         self.width = width
         self.height = self.width * (3/5)
-        self._press = press
     }
     
     var body: some View {
@@ -138,10 +201,14 @@ struct cardStack: View {
         )
         ZStack {
             ForEach(0..<self.cardAmount) { i in
-                cardView_button(elem: elem, width: self.width - (CGFloat(self.cardAmount) * self.offsetAmount), press: self.$press, hover: self.$hover)
+                cardStruct(elem: elem, width: self.width - (CGFloat(self.cardAmount) * self.offsetAmount))
                     .offset(x: ((CGFloat(i) * -self.offsetAmount) + self.offsetAmount), y: ((CGFloat(i) * self.offsetAmount) - self.offsetAmount))
             }
         }
+        .onHover { hover in self.hover = hover }
+        .offset(x: 0, y: self.hover ? -10 : 0)
+        .scaleEffect(self.hover ? 1.01 : 1)
+        .animation(.interpolatingSpring(stiffness: 180, damping: 100))
         .frame(width: self.width, height: self.height, alignment: .center)
     }
 }

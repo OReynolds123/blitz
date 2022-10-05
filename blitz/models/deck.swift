@@ -10,17 +10,21 @@ import SwiftUI
 
 struct deck: Codable, Identifiable, Hashable {
     let id: UUID
-    var title = ""
-    var cards = [card]()
+    var title: String
+    var cards: [card]
     
-    init(id: UUID = UUID(), title: String, cards: [card]) {
+    init(id: UUID = UUID(), title: String = "", cards: [card] = []) {
         self.id = id
         self.title = title
         self.cards = cards
     }
+    
+    mutating func append(card: card) {
+        self.cards.append(card)
+    }
         
     static var example: deck {
-        deck(title: "Example", cards: [card.example, card.example1])
+        deck(title: "Example", cards: [card.example, card.example1, card.example, card.example1])
     }
     static var example1: deck {
         deck(title: "Example 1", cards: [card.example1, card.example])

@@ -11,10 +11,12 @@ import Vision
 
 // Create a Deck
 struct deckCreation: View {
+    @StateObject private var userDataStore = userStore()
+    
     var width: CGFloat
-    @Binding var saveBtn: Bool
-    @Binding var cancelBtn: Bool
-    @Binding var presented: Bool
+    @State var index: Int
+    @Binding var creationPresented: Bool
+    @Binding var testPresented: Bool
     
     private var padding: CGFloat = 7.0
 
@@ -22,34 +24,32 @@ struct deckCreation: View {
     @State private var deckCards: [card] = []
     
     @State private var scrollIndex: Int?
-    @State private var addCardPress: Bool = false
     @State private var height: CGFloat
     
-    init(width: CGFloat = 450, saveBtn: Binding<Bool>, cancelBtn: Binding<Bool>, presented: Binding<Bool>) {
+    init(width: CGFloat = 450, index: Int, creationPresented: Binding<Bool>, testPresented: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
-        self._saveBtn = saveBtn
-        self._cancelBtn = cancelBtn
-        self._presented = presented
+        self.index = index
+        self._creationPresented = creationPresented
+        self._testPresented = testPresented
     }
         
     var body: some View {
         NavigationView {
             VStack {
                 Label("Home", systemImage: "house")
-                    .foregroundColor(.black)
+                    .foregroundColor(Color(NSColor.headerTextColor))
                     .padding(.top, 15)
                     .padding(.bottom, 5)
                     .onTapGesture {
-                        self.saveBtn = false
-                        self.cancelBtn = true
-                        self.presented = false
+                        self.creationPresented = false
+                        self.testPresented = false
                     }
                 
                 Divider().padding(.horizontal, 20)
                 
                 List {
-                    Label(deckTitle == "" ? "Deck Title" : deckTitle, systemImage: "home")
+                    Label(self.deckTitle == "" ? "Deck Title" : self.deckTitle, systemImage: "home")
                         .onTapGesture {
                             self.scrollIndex = 0
                         }
@@ -63,7 +63,7 @@ struct deckCreation: View {
 
                     Label("New Card", systemImage: "")
                         .onTapGesture {
-                            self.deckCards.append(card(front: "", back: ""))
+                            self.deckCards.append(card())
                         }
                 }
 
@@ -71,22 +71,39 @@ struct deckCreation: View {
                 
                 Divider().padding(.horizontal, 20)
 
-                Label("Cancel", systemImage: "")
-                    .foregroundColor(.red)
+                Label("Delete", systemImage: "")
+                    .foregroundColor(Color(NSColor.systemRed))
                     .padding(.vertical, 5)
                     .onTapGesture {
-                        self.saveBtn = false
-                        self.cancelBtn = true
-                        self.presented = false
+                        self.creationPresented = false
+                        self.testPresented = false
+                        self.userDataStore.userData.decks.remove(at: self.index)
+                        userStore.save(user: self.userDataStore.userData) { result in
+                            switch result {
+                            case .failure(let error):
+                                fatalError(error.localizedDescription)
+                            case .success(let uuid):
+                                print(uuid)
+                            }
+                        }
                     }
                     
                 Label("Save", systemImage: "")
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color(NSColor.linkColor))
                     .padding(.bottom, 15)
                     .onTapGesture {
-                        self.saveBtn = true
-                        self.cancelBtn = false
-                        self.presented = false
+                        self.creationPresented = false
+                        self.testPresented = true
+                        self.userDataStore.userData.decks[self.index].title = self.deckTitle
+                        self.userDataStore.userData.decks[self.index].cards = self.deckCards
+                        userStore.save(user: self.userDataStore.userData) { result in
+                            switch result {
+                            case .failure(let error):
+                                fatalError(error.localizedDescription)
+                            case .success(let uuid):
+                                print(uuid)
+                            }
+                        }
                     }
             }
 
@@ -101,8 +118,8 @@ struct deckCreation: View {
                             .id(0)
 
                         // Cards
-                        ForEachIndexed(self.$deckCards) { index, bind in
-                            normalCardEdit(cardArr: self.$deckCards, card: bind, width: self.width)
+                        ForEachIndexed(self.$deckCards) { index, elem in
+                            normalCardEdit(cardArr: self.$deckCards, card: elem, width: self.width)
                                 .padding(.horizontal)
                                 .padding(.vertical, self.padding)
                                 .id(index + 1)
@@ -119,27 +136,39 @@ struct deckCreation: View {
                         // Spacer
                         Rectangle()
                             .foregroundColor(Color.clear)
-                            .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
+                            .frame(width: geo.size.width - 0, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
 
                         // Add Card
-                        addCardEdit(width: self.width, press: self.$addCardPress)
+                        addCardEdit(width: self.width)
                             .padding(.horizontal)
                             .padding(.vertical, self.padding)
                             .frame(height: 60, alignment: .top)
-                            .onChange(of: self.addCardPress) { _pressed in
-                                self.deckCards.append(card(front: "", back: ""))
+                            .onTapGesture {
+                                self.deckCards.append(card())
                             }
                     }
                 }
                 .frame(width: geo.size.width)
             }
+        } // nav
+        .onAppear {
+            userStore.load { result in
+                switch result {
+                case .failure(let error):
+                    fatalError(error.localizedDescription)
+                case .success(let userData):
+                    self.userDataStore.userData = userData
+                    self.deckTitle = self.userDataStore.userData.decks[self.index].title
+                    self.deckCards = self.userDataStore.userData.decks[self.index].cards
+                }
+            }
         }
-    }
+    } // body
 }
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation(saveBtn: .constant(true), cancelBtn: .constant(true), presented: .constant(true))
+        deckCreation(index: 0, creationPresented: .constant(true), testPresented: .constant(false))
     }
 }
 
@@ -149,15 +178,12 @@ struct titleCardEdit: View {
     @Binding var text : String
     var width: CGFloat = 450
     
-    @State private var press: Bool = false
-    @State private var hover: Bool = false
-    
     var body: some View {
         let elem = AnyView(
-            CustomTextEditor(text: self.$text, placeholder: "Deck Title")
+            CustomTextEditor(width: self.width, text: self.$text, placeholder: "Deck Title")
                 .padding()
         )
-        cardView_noFlip(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
+        cardStruct(elem: elem, width: self.width)
     }
 }
 
@@ -178,11 +204,11 @@ struct normalCardEdit: View {
         let elem = AnyView(
             ZStack {
                 if !self.press {
-                    CustomTextEditor(text: self.$card.front, placeholder: "Front", fontSize: 20.0)
+                    CustomTextEditor(width: self.width, text: self.$card.front, placeholder: "Front", fontSize: 20.0)
                         .padding()
                         .animation(.none)
                 } else {
-                    CustomTextEditor(text: self.$card.back, placeholder: "Back", fontSize: 20.0)
+                    CustomTextEditor(width: self.width, text: self.$card.back, placeholder: "Back", fontSize: 20.0)
                         .padding()
                         .rotation3DEffect(.degrees(self.press ? 180 : 0), axis: (x: -1, y: 0, z: 0))
                         .animation(.none)
@@ -200,7 +226,7 @@ struct normalCardEdit: View {
                             
                             Image(systemName: "camera.fill")
                                 .frame(width: 15, height: 15, alignment: .center)
-                                .foregroundColor(.black)
+                                .foregroundColor(Color(NSColor.secondaryLabelColor))
                         }
                         .onHover { hover in
                             self.cameraBtnHover = hover
@@ -214,7 +240,7 @@ struct normalCardEdit: View {
                         HStack(alignment: .bottom) {
                             Image(systemName: "trash.fill")
                                 .frame(width: 15, height: 15, alignment: .center)
-                                .foregroundColor(.red)
+                                .foregroundColor(Color(NSColor.systemRed))
                             
                             if self.trashBtnHover {
                                 Text("Remove Card")
@@ -238,7 +264,7 @@ struct normalCardEdit: View {
                             
                             Image(systemName: "arrowshape.turn.up.right.fill")
                                 .frame(width: 15, height: 15, alignment: .center)
-                                .foregroundColor(.black)
+                                .foregroundColor(Color(NSColor.secondaryLabelColor))
                         }
                         .onHover { hover in
                             self.backBtnHover = hover
@@ -310,7 +336,6 @@ struct normalCardEdit: View {
 // Add Card View
 struct addCardEdit: View {
     var width: CGFloat = 450
-    @Binding var press: Bool
     
     @State private var hover: Bool = false
     
@@ -321,26 +346,32 @@ struct addCardEdit: View {
                 .foregroundColor(Color.blue)
                 .offset(x: 0, y: -(self.width / 4))
         )
-        cardView_button(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
+        cardStruct(elem: elem, width: self.width)
+            .onHover { hover in self.hover = hover }
+            .offset(x: 0, y: self.hover ? -10 : 0)
+            .scaleEffect(self.hover ? 1.01 : 1)
+            .animation(.interpolatingSpring(stiffness: 180, damping: 100))
     }
 }
 
 
 // Custom Text Editor
 struct CustomTextEditor: View {
+    var width: CGFloat
     @Binding var text: String
     var placeholder: String
     var fontSize: CGFloat
-    var height: CGFloat
     
+    @State private var height: CGFloat
     @State private var textEditorHeight: CGFloat
 
-    init(text: Binding<String>, placeholder: String = "", fontSize: CGFloat = 40.0, height: CGFloat = 250) {
+    init(width: CGFloat = 450, text: Binding<String>, placeholder: String = "", fontSize: CGFloat = 40.0) {
+        self.width = width
+        self.height = (self.width * (3/5)) - 75
         self._text = text
         self.placeholder = placeholder
         self.fontSize = fontSize
         self.textEditorHeight = fontSize + 17
-        self.height = height - 75
     }
     
     var body: some View {
@@ -349,16 +380,16 @@ struct CustomTextEditor: View {
                 if (self.text.isEmpty) {
                     Text(self.placeholder)
                         .font(.system(size: self.fontSize))
-                        .foregroundColor(Color.gray.opacity(0.5))
+                        .foregroundColor(Color(NSColor.secondaryLabelColor))
                         .padding(5)
                         .offset(x: 0, y: 0)
                         .multilineTextAlignment(.center)
                 }
                 TextEditor(text: self.$text)
                     .font(.system(size: self.fontSize))
-                    .foregroundColor(Color.black.opacity(1))
+                    .foregroundColor(Color(NSColor.textColor))
                     .padding(5)
-                    .offset(x: 8, y: 0)
+                    .offset(x: 0, y: 0) // x: 8
                     .multilineTextAlignment(.center)
                     .background(
                         GeometryReader { geo in
@@ -377,7 +408,7 @@ struct CustomTextEditor: View {
     private var coverScrollOverlay: some View {
         Rectangle()
             .frame(width: 20)
-            .foregroundColor(Color.white)
+            .foregroundColor(Color(NSColor.windowBackgroundColor))
     }
 }
 extension NSTextView {

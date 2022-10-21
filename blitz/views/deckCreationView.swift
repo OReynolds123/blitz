@@ -15,8 +15,10 @@ struct deckCreation: View {
     
     var width: CGFloat
     @State var index: Int
-    @Binding var creationPresented: Bool
-    @Binding var testPresented: Bool
+    @Binding var creationView: Bool
+    @Binding var testView: Bool
+    @Binding var fullView: Bool
+    @Binding var quizView: Bool
     
     private var padding: CGFloat = 7.0
 
@@ -26,12 +28,14 @@ struct deckCreation: View {
     @State private var scrollIndex: Int?
     @State private var height: CGFloat
     
-    init(width: CGFloat = 450, index: Int, creationPresented: Binding<Bool>, testPresented: Binding<Bool>) {
+    init(width: CGFloat = 450, index: Int, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
         self.index = index
-        self._creationPresented = creationPresented
-        self._testPresented = testPresented
+        self._creationView = creationView
+        self._testView = testView
+        self._fullView = fullView
+        self._quizView = quizView
     }
         
     var body: some View {
@@ -42,41 +46,41 @@ struct deckCreation: View {
                     .padding(.top, 15)
                     .padding(.bottom, 5)
                     .onTapGesture {
-                        self.creationPresented = false
-                        self.testPresented = false
+                        self.creationView = false
                     }
                 
                 Divider().padding(.horizontal, 20)
                 
                 List {
-                    Label(self.deckTitle == "" ? "Deck Title" : self.deckTitle, systemImage: "home")
+                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
                         .onTapGesture {
                             self.scrollIndex = 0
                         }
 
                     ForEachIndexed(self.$deckCards) { index, elem in
-                        Label(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front, systemImage: "")
+                        Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
                             .onTapGesture {
                                 self.scrollIndex = index + 1
                             }
                     }
 
-                    Label("New Card", systemImage: "")
+                    Text("New Card")
+                        .foregroundColor(Color(NSColor.tertiaryLabelColor))
                         .onTapGesture {
                             self.deckCards.append(card())
                         }
                 }
+                .padding(.horizontal)
 
                 Spacer()
                 
                 Divider().padding(.horizontal, 20)
 
-                Label("Delete", systemImage: "")
+                Text("Delete")
                     .foregroundColor(Color(NSColor.systemRed))
                     .padding(.vertical, 5)
                     .onTapGesture {
-                        self.creationPresented = false
-                        self.testPresented = false
+                        self.creationView = false
                         self.userDataStore.userData.decks.remove(at: self.index)
                         userStore.save(user: self.userDataStore.userData) { result in
                             switch result {
@@ -88,12 +92,12 @@ struct deckCreation: View {
                         }
                     }
                     
-                Label("Save", systemImage: "")
+                Text("Save")
                     .foregroundColor(Color(NSColor.linkColor))
                     .padding(.bottom, 15)
                     .onTapGesture {
-                        self.creationPresented = false
-                        self.testPresented = true
+                        self.creationView = false
+                        self.fullView = true
                         self.userDataStore.userData.decks[self.index].title = self.deckTitle
                         self.userDataStore.userData.decks[self.index].cards = self.deckCards
                         userStore.save(user: self.userDataStore.userData) { result in
@@ -168,7 +172,7 @@ struct deckCreation: View {
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation(index: 0, creationPresented: .constant(true), testPresented: .constant(false))
+        deckCreation(index: 0, creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
     }
 }
 
@@ -408,7 +412,7 @@ struct CustomTextEditor: View {
     private var coverScrollOverlay: some View {
         Rectangle()
             .frame(width: 20)
-            .foregroundColor(Color(NSColor.white))
+            .foregroundColor(Color(NSColor.windowBackgroundColor))
     }
 }
 extension NSTextView {

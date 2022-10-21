@@ -10,8 +10,10 @@ import SwiftUI
 struct blitzHomeView: View {
     @StateObject private var userDataStore = userStore()
     
-    @State var deckCreationPresented = false
-    @State var deckTestPresented = false
+    @State private var creationView = false
+    @State private var testView = false
+    @State private var fullView = false
+    @State private var quizView = false
     
     @State private var clickedDeck: Int = 0
     @State private var cols: Int = 3
@@ -19,34 +21,36 @@ struct blitzHomeView: View {
     var width: CGFloat = 200
     
     var body: some View {
-        NavigationView {
-            VStack {
-                Label("Home", systemImage: "house")
-                    .foregroundColor(Color(NSColor.headerTextColor))
-                    .padding(.top, 15)
-                    .padding(.bottom, 5)
-                
-                Divider().padding(.horizontal, 20)
-                
-                List {
-                    ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
-                        Label(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title, systemImage: "")
+        GeometryReader { geo in
+            NavigationView {
+                VStack {
+                    Label("Home", systemImage: "house")
+                        .foregroundColor(Color(NSColor.headerTextColor))
+                        .padding(.top, 15)
+                        .padding(.bottom, 5)
+                    
+                    Divider().padding(.horizontal, 20)
+                    
+                    List {
+                        ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
+                            Text(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title)
+                                .onTapGesture {
+                                    self.clickedDeck = index
+                                    self.fullView = true
+                                }
+                        }
+                        
+                        Text("New Deck")
+                            .foregroundColor(Color(NSColor.tertiaryLabelColor))
                             .onTapGesture {
-                                self.clickedDeck = index
-                                self.deckTestPresented = true
+                                createDeck()
                             }
                     }
+                    .padding(.horizontal)
                     
-                    Label("New Deck", systemImage: "")
-                        .onTapGesture {
-                            createDeck()
-                        }
+                    Spacer()
                 }
-                
-                Spacer()
-            }
-            
-            GeometryReader { geo in
+
                 ScrollView(.vertical) {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum:self.width), spacing: 10, alignment: .leading)]) {
                         addDeck(width: self.width)
@@ -58,23 +62,27 @@ struct blitzHomeView: View {
                             cardStack(title: elem.title.wrappedValue, width: self.width)
                                 .onTapGesture {
                                     self.clickedDeck = index
-                                    self.deckTestPresented = true
+                                    self.fullView = true
                                 }
                         }
                     }
                     .padding()
                 }
-                .sheet(isPresented: self.$deckCreationPresented) {
-                    deckCreation(index: self.clickedDeck, creationPresented: self.$deckCreationPresented, testPresented: self.$deckTestPresented)
+                .sheet(isPresented: self.$creationView) {
+                    deckCreation(index: self.clickedDeck, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
-                .sheet(isPresented: self.$deckTestPresented) {
-                    deckTestView(index: self.clickedDeck, testPresented: self.$deckTestPresented, creationPresented: self.$deckCreationPresented)
+                .sheet(isPresented: self.$testView) {
+                    deckTestView(index: self.clickedDeck, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
-            } // geo
-        } // nav
-        .onChange(of: self.deckCreationPresented) { _bind in
+                .sheet(isPresented: self.$fullView) {
+                    deckFullView(index: self.clickedDeck, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                        .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                }
+            } // nav
+        } // geo
+        .onChange(of: self.creationView) { _bind in
             userStore.load { result in
                 switch result {
                 case .failure(let error):
@@ -108,7 +116,7 @@ struct blitzHomeView: View {
             }
         }
         self.clickedDeck = self.userDataStore.userData.decks.count - 1
-        self.deckCreationPresented = true
+        self.creationView = true
     }
 }
             

@@ -35,7 +35,7 @@ struct cardView_text: View, Identifiable {
 
 struct cardView_Previews: PreviewProvider {
     static var previews: some View {
-        cardView_text(card: card.example)
+        cardView_text(card: card(front: "this is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis ", back: ""))
     }
 }
 
@@ -107,9 +107,8 @@ struct cardStruct_bindings: View {
 struct cardStruct: View {
     var elem: AnyView
     var width: CGFloat
-    
-    @State private var height: CGFloat
-    @State private var radius: CGFloat
+    var height: CGFloat
+    var radius: CGFloat
     
     init(elem: AnyView = AnyView(Color.clear), width: CGFloat = 450) {
         self.elem = elem
@@ -117,17 +116,44 @@ struct cardStruct: View {
         self.height = self.width * (3/5)
         self.radius = sqrt(self.width)
     }
+    init(elem: AnyView = AnyView(Color.clear), width: CGFloat = 450, height: CGFloat) {
+        self.elem = elem
+        self.width = width
+        self.height = height
+        self.radius = sqrt(self.width)
+    }
+    init(elem: AnyView = AnyView(Color.clear), width: CGFloat = 450, height: CGFloat, radius: CGFloat) {
+        self.elem = elem
+        self.width = width
+        self.height = height
+        self.radius = radius
+    }
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: self.radius, style: .continuous)
-                .fill(Color(NSColor.white))
-                .background(RoundedRectangle(cornerRadius: self.radius, style: .continuous).fill(Color(NSColor.windowBackgroundColor)))
-                .shadow(color: Color.black.opacity(0.2), radius: (self.radius / 5), x: 2, y: 2)
-            
-            self.elem
-        }
-        .frame(width: self.width, height: self.height)
+        self.elem
+            .background(
+                RoundedRectangle(cornerRadius: self.radius, style: .continuous)
+                    .fill(Color(NSColor.windowBackgroundColor))
+                    .shadow(color: Color.black.opacity(0.2), radius: (self.radius / 5), x: 2, y: 2)
+                    .frame(width: self.width, height: self.height)
+            )
+            .frame(width: self.width, height: self.height)
+            .accessibility(addTraits: .isButton)
+    }
+}
+struct cardStruct_noHeight: View {
+    var elem: AnyView
+    var width: CGFloat
+    var radius: CGFloat
+    
+    var body: some View {
+        self.elem
+            .background(
+                RoundedRectangle(cornerRadius: self.radius, style: .continuous)
+                    .fill(Color(NSColor.windowBackgroundColor))
+                    .shadow(color: Color.black.opacity(0.2), radius: (self.radius / 5), x: 2, y: 2)
+            )
+        .frame(width: self.width)
         .accessibility(addTraits: .isButton)
     }
 }

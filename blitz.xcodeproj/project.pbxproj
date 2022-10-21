@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		791C3B9028E0E84700A7E6CE /* deckCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */; };
 		791C3B9228E0F0BF00A7E6CE /* blitzHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */; };
+		792CA0EC28F8A42F00F3FD75 /* deckFullView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792CA0EB28F8A42F00F3FD75 /* deckFullView.swift */; };
 		79582FA828ECC56300CF974E /* user.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79582FA728ECC56300CF974E /* user.swift */; };
 		79A23C9728DA511500A1DA9E /* blitzApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79A23C9628DA511500A1DA9E /* blitzApp.swift */; };
 		79A23C9B28DA511500A1DA9E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79A23C9A28DA511500A1DA9E /* Assets.xcassets */; };
@@ -43,6 +44,7 @@
 /* Begin PBXFileReference section */
 		791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deckCreationView.swift; sourceTree = "<group>"; };
 		791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzHomeView.swift; sourceTree = "<group>"; };
+		792CA0EB28F8A42F00F3FD75 /* deckFullView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deckFullView.swift; sourceTree = "<group>"; };
 		79582FA728ECC56300CF974E /* user.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = user.swift; sourceTree = "<group>"; };
 		79A23C9328DA511500A1DA9E /* blitz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = blitz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		79A23C9628DA511500A1DA9E /* blitzApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = blitzApp.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 			children = (
 				791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */,
 				79B6653728DA794400DFF00F /* deckTestView.swift */,
+				792CA0EB28F8A42F00F3FD75 /* deckFullView.swift */,
 				791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */,
 				79B6653528DA793A00DFF00F /* cardView.swift */,
 				79B6654028DA923400DFF00F /* _webView.swift */,
@@ -298,6 +301,7 @@
 			files = (
 				79B6653328DA77EB00DFF00F /* card.swift in Sources */,
 				79B6653128DA776D00DFF00F /* deck.swift in Sources */,
+				792CA0EC28F8A42F00F3FD75 /* deckFullView.swift in Sources */,
 				79B6653628DA793A00DFF00F /* cardView.swift in Sources */,
 				79B6653828DA794400DFF00F /* deckTestView.swift in Sources */,
 				791C3B9028E0E84700A7E6CE /* deckCreationView.swift in Sources */,

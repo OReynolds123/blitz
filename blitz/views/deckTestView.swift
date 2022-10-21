@@ -12,8 +12,10 @@ struct deckTestView: View {
     
     var width: CGFloat
     @State var index: Int
-    @Binding var testPresented: Bool
-    @Binding var creationPresented: Bool
+    @Binding var creationView: Bool
+    @Binding var testView: Bool
+    @Binding var fullView: Bool
+    @Binding var quizView: Bool
     
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
@@ -26,12 +28,14 @@ struct deckTestView: View {
     @State private var removalTransition  = AnyTransition.trailingBottom
     private let dragThreshold: CGFloat = 80.0
 
-    init(width: CGFloat = 450, index: Int, testPresented: Binding<Bool>, creationPresented: Binding<Bool>) {
+    init(width: CGFloat = 450, index: Int, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
         self.index = index
-        self._testPresented = testPresented
-        self._creationPresented = creationPresented
+        self._creationView = creationView
+        self._testView = testView
+        self._fullView = fullView
+        self._quizView = quizView
     }
 
     var body: some View {
@@ -42,8 +46,7 @@ struct deckTestView: View {
                     .padding(.top, 15)
                     .padding(.bottom, 5)
                     .onTapGesture {
-                        self.testPresented = false
-                        self.creationPresented = false
+                        self.testView = false
                     }
 
                 Divider().padding(.horizontal, 20)
@@ -70,16 +73,15 @@ struct deckTestView: View {
                     .foregroundColor(Color(NSColor.textColor))
                     .padding(.vertical, 5)
                     .onTapGesture {
-                        self.testPresented = false
-                        self.creationPresented = true
+                        self.testView = false
+                        self.creationView = true
                     }
 
                 Label("Close", systemImage: "")
                     .foregroundColor(Color(NSColor.linkColor))
                     .padding(.bottom, 15)
                     .onTapGesture {
-                        self.testPresented = false
-                        self.creationPresented = false
+                        self.testView = false
                     }
             } // vstack
 
@@ -203,7 +205,7 @@ struct deckTestView: View {
 
 struct deckTestView_Previews: PreviewProvider {
     static var previews: some View {
-        deckTestView(index: 0, testPresented: .constant(true), creationPresented: .constant(false))
+        deckTestView(index: 0, creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
     }
 }
 

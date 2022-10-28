@@ -12,15 +12,25 @@ struct user: Codable, Identifiable, Hashable {
     let id: UUID
     let name: String
     var decks: [deck]
-    
+    var deckIndex: Int
+
     init(id: UUID = UUID(), name: String = "", decks: [deck] = [deck.example]) {
         self.id = id
         self.name = name
         self.decks = decks
+        self.deckIndex = 0
     }
     
     mutating func append(deck: deck) {
         self.decks.append(deck)
+    }
+    
+    mutating func changeIndex(index: Int) {
+        self.deckIndex = index
+    }
+    
+    func getDeck() -> deck {
+        return self.decks[self.deckIndex]
     }
 }
 
@@ -29,7 +39,7 @@ class userStore: ObservableObject {
     
     private static func fileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("user.data")
+            .appendingPathComponent("user_3.data")
     }
     
     static func load(completion: @escaping (Result<user, Error>)->Void) {
@@ -71,4 +81,3 @@ class userStore: ObservableObject {
         }
     }
 }
-

@@ -10,7 +10,6 @@ import SwiftUI
 struct deckFullView: View {
     @StateObject private var userDataStore = userStore()
     
-    @State var index: Int
     @Binding var creationView: Bool
     @Binding var testView: Bool
     @Binding var fullView: Bool
@@ -19,14 +18,6 @@ struct deckFullView: View {
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
     @State private var scrollIndex: Int?
-    
-    init(index: Int, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
-        self.index = index
-        self._creationView = creationView
-        self._testView = testView
-        self._fullView = fullView
-        self._quizView = quizView
-    }
     
     var body: some View {
         NavigationView {
@@ -110,8 +101,8 @@ struct deckFullView: View {
                     fatalError(error.localizedDescription)
                 case .success(let userData):
                     self.userDataStore.userData = userData
-                    self.deckTitle = userData.decks[index].title
-                    self.deckCards = userData.decks[index].cards
+                    self.deckTitle = userData.getDeck().title
+                    self.deckCards = userData.getDeck().cards
                 }
             }
         }
@@ -120,16 +111,19 @@ struct deckFullView: View {
 
 struct deckFullView_Previews: PreviewProvider {
     static var previews: some View {
-        deckFullView(index: 0, creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
+        deckFullView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
     }
 }
 
 struct fullCard: View {
     var width: CGFloat = 450
     var front: String
-    var back: String = ""
+    var back: String
     
     var radius: CGFloat = 10
+    
+    var fontColor = Color("defaultCardFontColor")
+    var bkgColor = Color("defaultCardBkgColor")
     
     @State private var pad: CGFloat = 20
     
@@ -138,6 +132,7 @@ struct fullCard: View {
             HStack {
                 ZStack {
                     Text(self.front)
+                        .foregroundColor(self.fontColor)
                         .padding(.horizontal, 10)
                         .padding(.leading, 5)
                         .padding(.vertical, 10)
@@ -149,6 +144,7 @@ struct fullCard: View {
                 
                 ZStack {
                     Text(self.back)
+                        .foregroundColor(self.fontColor)
                         .padding(.horizontal, 10)
                         .padding(.trailing, 5)
                         .padding(.vertical, 10)
@@ -158,7 +154,7 @@ struct fullCard: View {
             }
             .frame(width: self.width)
         )
-        cardStruct_noHeight(elem: elem, width: self.width, radius: 10)
+        cardStruct_noHeight(elem: elem, width: self.width, radius: 10, bkgColor: self.bkgColor)
     }
 }
 

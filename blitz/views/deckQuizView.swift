@@ -1,13 +1,13 @@
 //
-//  deckTestView.swift
+//  deckQuizView.swift
 //  blitz
 //
-//  Created by Owen Reynolds on 9/20/22.
+//  Created by Owen Reynolds on 10/25/22.
 //
 
 import SwiftUI
 
-struct deckTestView: View {
+struct deckQuizView: View {
     @StateObject private var userDataStore = userStore()
     
     var width: CGFloat
@@ -46,7 +46,7 @@ struct deckTestView: View {
                     .padding(.bottom, 5)
                     .onTapGesture {
                         saveUserData()
-                        self.testView = false
+                        self.quizView = false
                     }
 
                 Divider().padding(.horizontal, 20)
@@ -56,7 +56,7 @@ struct deckTestView: View {
                     
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
-                            .foregroundColor(elem.wrappedValue.test_passed ? Color.green : elem.wrappedValue.test_failed ? Color.red : Color(NSColor.secondaryLabelColor))
+                            .foregroundColor(elem.wrappedValue.quiz_passed ? Color.green : elem.wrappedValue.quiz_failed ? Color.red : Color(NSColor.secondaryLabelColor))
                     }
                 }
                 .padding()
@@ -70,7 +70,7 @@ struct deckTestView: View {
                     .padding(.vertical, 5)
                     .onTapGesture {
                         saveUserData()
-                        self.testView = false
+                        self.quizView = false
                         self.creationView = true
                     }
 
@@ -79,7 +79,7 @@ struct deckTestView: View {
                     .padding(.bottom, 15)
                     .onTapGesture {
                         saveUserData()
-                        self.testView = false
+                        self.quizView = false
                     }
             } // vstack
 
@@ -97,7 +97,7 @@ struct deckTestView: View {
                         }
                         .foregroundColor(Color(NSColor.linkColor))
                         .onTapGesture {
-                            self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].test_reset()
+                            self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].quiz_reset()
                             userStore.save(user: self.userDataStore.userData) { result in
                                 switch result {
                                 case .failure(let error):
@@ -114,7 +114,7 @@ struct deckTestView: View {
                                 var amt = 0
                                 for index in 0..<self.deckCards.count {
                                     if (amt >= 2) { break }
-                                    if (!self.deckCards[index].test_passed) {
+                                    if (!self.deckCards[index].quiz_passed) {
                                         if (amt == 0) {
                                             self.deckCard_frontIndex = index
                                         } else if (amt == 1) {
@@ -143,7 +143,7 @@ struct deckTestView: View {
                         .foregroundColor(Color(NSColor.labelColor))
                         .onTapGesture {
                             saveUserData()
-                            self.testView = false
+                            self.quizView = false
                             self.creationView = true
                         }
                     }
@@ -223,7 +223,7 @@ struct deckTestView: View {
                         var amt = 0
                         for index in 0..<self.deckCards.count {
                             if (amt >= 2) { break }
-                            if (!self.deckCards[index].test_passed) {
+                            if (!self.deckCards[index].quiz_passed) {
                                 if (amt == 0) {
                                     self.deckCard_frontIndex = index
                                 } else if (amt == 1) {
@@ -269,7 +269,7 @@ struct deckTestView: View {
             if (i == self.deckCard_frontIndex) {
                 break
             }
-            if (!self.deckCards[i].test_passed) {
+            if (!self.deckCards[i].quiz_passed) {
                 return i
             }
             i = i + 1
@@ -281,9 +281,9 @@ struct deckTestView: View {
     private func moveCard(failed: Bool = false) {
         var didRemove = false
         if (failed) {
-            self.deckCards[self.deckCard_frontIndex].testFailed()
+            self.deckCards[self.deckCard_frontIndex].quizFailed()
         } else {
-            self.deckCards[self.deckCard_frontIndex].testPassed()
+            self.deckCards[self.deckCard_frontIndex].quizPassed()
             self.deckCardsViews.removeFirst()
             didRemove = true
         }
@@ -302,55 +302,8 @@ struct deckTestView: View {
     }
 }
 
-struct deckTestView_Previews: PreviewProvider {
+struct deckQuizView_Previews: PreviewProvider {
     static var previews: some View {
-        deckTestView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
-    }
-}
-
-
-enum DragState {
-    case inactive
-    case pressing
-    case dragging(translation: CGSize)
-    var translation: CGSize {
-        switch self {
-        case .inactive, .pressing:
-            return .zero
-        case .dragging(let translation):
-            return translation
-        }
-    }
-    var isDragging: Bool {
-        switch self {
-        case .dragging:
-            return true
-        case .pressing, .inactive:
-            return false
-        }
-    }
-    var isPressing: Bool {
-        switch self {
-        case .pressing, .dragging:
-            return true
-        case .inactive:
-            return false
-        }
-    }
-}
-
-extension AnyTransition {
-    static var trailingBottom: AnyTransition {
-        AnyTransition.asymmetric(
-            insertion: .identity,
-            removal: AnyTransition.move(edge: .trailing).combined(with: .move(edge: .bottom))
-        )
-
-    }
-    static var leadingBottom: AnyTransition {
-        AnyTransition.asymmetric(
-            insertion: .identity,
-            removal: AnyTransition.move(edge: .leading).combined(with: .move(edge: .bottom))
-        )
+        deckQuizView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
     }
 }

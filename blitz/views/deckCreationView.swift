@@ -14,7 +14,6 @@ struct deckCreation: View {
     @StateObject private var userDataStore = userStore()
     
     var width: CGFloat
-    @State var index: Int
     @Binding var creationView: Bool
     @Binding var testView: Bool
     @Binding var fullView: Bool
@@ -28,10 +27,9 @@ struct deckCreation: View {
     @State private var scrollIndex: Int?
     @State private var height: CGFloat
     
-    init(width: CGFloat = 450, index: Int, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
+    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
-        self.index = index
         self._creationView = creationView
         self._testView = testView
         self._fullView = fullView
@@ -81,7 +79,7 @@ struct deckCreation: View {
                     .padding(.vertical, 5)
                     .onTapGesture {
                         self.creationView = false
-                        self.userDataStore.userData.decks.remove(at: self.index)
+                        self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
                         userStore.save(user: self.userDataStore.userData) { result in
                             switch result {
                             case .failure(let error):
@@ -98,8 +96,8 @@ struct deckCreation: View {
                     .onTapGesture {
                         self.creationView = false
                         self.fullView = true
-                        self.userDataStore.userData.decks[self.index].title = self.deckTitle
-                        self.userDataStore.userData.decks[self.index].cards = self.deckCards
+                        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
+                        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
                         userStore.save(user: self.userDataStore.userData) { result in
                             switch result {
                             case .failure(let error):
@@ -162,8 +160,8 @@ struct deckCreation: View {
                     fatalError(error.localizedDescription)
                 case .success(let userData):
                     self.userDataStore.userData = userData
-                    self.deckTitle = self.userDataStore.userData.decks[self.index].title
-                    self.deckCards = self.userDataStore.userData.decks[self.index].cards
+                    self.deckTitle = userData.getDeck().title
+                    self.deckCards = userData.getDeck().cards
                 }
             }
         }
@@ -172,7 +170,7 @@ struct deckCreation: View {
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation(index: 0, creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
+        deckCreation(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
     }
 }
 
@@ -412,7 +410,7 @@ struct CustomTextEditor: View {
     private var coverScrollOverlay: some View {
         Rectangle()
             .frame(width: 20)
-            .foregroundColor(Color(NSColor.windowBackgroundColor))
+            .foregroundColor(Color("defaultCardBkgColor"))
     }
 }
 extension NSTextView {

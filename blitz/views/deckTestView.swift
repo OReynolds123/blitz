@@ -21,6 +21,7 @@ struct deckTestView: View {
     @State private var deckCardsViews: [cardView_text] = []
     @State private var deckCard_frontIndex = -1
     @State private var deckCard_backIndex = -1
+    @State private var cardSide: Bool = false
 
     @State private var height: CGFloat
 
@@ -55,13 +56,15 @@ struct deckTestView: View {
                     Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
                     
                     ForEachIndexed(self.$deckCards) { index, elem in
-                        Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
+                        Text(self.cardSide ? (elem.wrappedValue.back == "" ? "Card \(index + 1)" : elem.wrappedValue.back) : (elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front))
                             .foregroundColor(elem.wrappedValue.test_passed ? Color.green : elem.wrappedValue.test_failed ? Color.red : Color(NSColor.secondaryLabelColor))
                     }
                 }
                 .padding()
 
                 Spacer()
+                
+                Toggle("Flip Cards?", isOn: self.$cardSide)
 
                 Divider().padding(.horizontal, 20)
 
@@ -109,23 +112,7 @@ struct deckTestView: View {
                             self.deckCards = self.userDataStore.userData.getDeck().cards
                             self.deckCard_frontIndex = -1
                             self.deckCard_backIndex = -1
-                            self.deckCardsViews = {
-                                var views = [cardView_text]()
-                                var amt = 0
-                                for index in 0..<self.deckCards.count {
-                                    if (amt >= 2) { break }
-                                    if (!self.deckCards[index].test_passed) {
-                                        if (amt == 0) {
-                                            self.deckCard_frontIndex = index
-                                        } else if (amt == 1) {
-                                            self.deckCard_backIndex = index
-                                        }
-                                        views.append(cardView_text(card: self.deckCards[index]))
-                                        amt += 1
-                                    }
-                                }
-                                return views
-                            }()
+                            self.deckCardsViews = drawCardViews()
                         }
                         
                         Spacer()
@@ -153,17 +140,6 @@ struct deckTestView: View {
                 ForEach(deckCardsViews) { deckCard in
                     deckCard
                         .zIndex(self.isTopCard(deckCard: deckCard) ? 1 : 0)
-                        .overlay(
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .foregroundColor(Color.red.opacity(0.2))
-                                    .opacity(self.dragState.translation.width < -self.dragThreshold && self.isTopCard(deckCard: deckCard) ? 1.0 : 0)
-
-                                RoundedRectangle(cornerRadius: 20)
-                                    .foregroundColor(Color.green.opacity(0.2))
-                                    .opacity(self.dragState.translation.width > self.dragThreshold  && self.isTopCard(deckCard: deckCard) ? 1.0 : 0.0)
-                            }
-                        )
                         .offset(x: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.width : 0, y: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.height : 0)
                         .scaleEffect(self.dragState.isDragging && self.isTopCard(deckCard: deckCard) ? 0.95 : 1.0)
                         .rotationEffect(Angle(degrees: self.isTopCard(deckCard: deckCard) ? Double( self.dragState.translation.width / 10) : 0))
@@ -188,9 +164,12 @@ struct deckTestView: View {
                                 }
                                 if drag.translation.width < -self.dragThreshold {
                                     self.removalTransition = .leadingBottom
-                                }
-                                if drag.translation.width > self.dragThreshold {
+                                    self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
+                                } else if drag.translation.width > self.dragThreshold {
                                     self.removalTransition = .trailingBottom
+                                    self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
+                                } else {
+                                    self.deckCardsViews[0].bkgColor = Color("defaultCardBkgColor")
                                 }
                             })
                             .onEnded({ (value) in
@@ -199,8 +178,7 @@ struct deckTestView: View {
                                 }
                                 if drag.translation.width < -self.dragThreshold {
                                     self.moveCard(failed: true)
-                                }
-                                if drag.translation.width > self.dragThreshold {
+                                } else if drag.translation.width > self.dragThreshold {
                                     self.moveCard(failed: false)
                                 }
                             })
@@ -209,6 +187,11 @@ struct deckTestView: View {
             } // zstack
             .padding()
         } // nav
+        .onChange(of: self.cardSide) { _bind in
+            for i in 0..<self.deckCardsViews.count {
+                self.deckCardsViews[i] = cardView_text(card: self.deckCardsViews[i].card, width: self.width, reverse: self.cardSide)
+            }
+        }
         .onAppear {
             userStore.load { result in
                 switch result {
@@ -218,27 +201,29 @@ struct deckTestView: View {
                     self.userDataStore.userData = userData
                     self.deckTitle = userData.getDeck().title
                     self.deckCards = userData.getDeck().cards
-                    self.deckCardsViews = {
-                        var views = [cardView_text]()
-                        var amt = 0
-                        for index in 0..<self.deckCards.count {
-                            if (amt >= 2) { break }
-                            if (!self.deckCards[index].test_passed) {
-                                if (amt == 0) {
-                                    self.deckCard_frontIndex = index
-                                } else if (amt == 1) {
-                                    self.deckCard_backIndex = index
-                                }
-                                views.append(cardView_text(card: self.deckCards[index]))
-                                amt += 1
-                            }
-                        }
-                        return views
-                    }()
+                    self.deckCardsViews = drawCardViews()
                 }
             }
         }
     } // body
+    
+    private func drawCardViews() -> [cardView_text] {
+        var views: [cardView_text] = []
+        var amt = 0
+        for index in 0..<self.deckCards.count {
+            if (amt >= 2) { break }
+            if (!self.deckCards[index].quiz_passed) {
+                if (amt == 0) {
+                    self.deckCard_frontIndex = index
+                } else if (amt == 1) {
+                    self.deckCard_backIndex = index
+                }
+                views.append(cardView_text(card: self.deckCards[index], width: self.width, reverse: self.cardSide))
+                amt += 1
+            }
+        }
+        return views
+    }
     
     private func saveUserData() {
         self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards

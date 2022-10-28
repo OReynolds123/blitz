@@ -145,7 +145,7 @@ struct blitzHomeView: View {
                 }
             }
         }
-        .frame(minWidth: 800)
+        .frame(minWidth: 800, minHeight: 400)
     } // body
     
     private func createDeck() {

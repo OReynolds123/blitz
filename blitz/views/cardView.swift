@@ -13,6 +13,7 @@ struct cardView_text: View, Identifiable {
     var fontColor: Color = Color("defaultCardFontColor")
     var bkgColor: Color = Color("defaultCardBkgColor")
     var width: CGFloat = 450
+    @State var reverse: Bool = false
     
     @State private var press: Bool = false
     @State private var hover: Bool = false
@@ -21,10 +22,10 @@ struct cardView_text: View, Identifiable {
         let elem = AnyView(
             VStack {
                 if !self.press {
-                    Text(self.card.front)
+                    Text(self.reverse ? self.card.back : self.card.front)
                         .foregroundColor(self.fontColor)
                 } else {
-                    Text(self.card.back)
+                    Text(self.reverse ? self.card.front : self.card.back)
                         .foregroundColor(self.fontColor)
                         .rotation3DEffect(.degrees(self.press ? 180 : 0), axis: (x: -1, y: 0, z: 0))
                 }

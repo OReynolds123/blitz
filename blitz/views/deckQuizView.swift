@@ -46,191 +46,218 @@ struct deckQuizView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Label("Home", systemImage: "house")
-                    .foregroundColor(Color(NSColor.headerTextColor))
-                    .padding(.top, 15)
-                    .padding(.bottom, 5)
-                    .onTapGesture {
-                        saveUserData()
-                        self.quizView = false
-                    }
+                Button(action: {
+                    saveUserData()
+                    self.quizView = false
+                }, label: {
+                    Label("Home", systemImage: "house")
+                        .foregroundColor(Color("nav_homeColor"))
+                        .padding(.top, 15)
+                        .padding(.bottom, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Return Home")
 
                 Divider().padding(.horizontal, 20)
 
                 List {
                     Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                        .foregroundColor(Color("nav_titleColor"))
                     
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Text(self.cardSide ? (elem.wrappedValue.back == "" ? "Card \(index + 1)" : elem.wrappedValue.back) : (elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front))
-                            .foregroundColor(elem.wrappedValue.quiz_passed ? Color.green : elem.wrappedValue.quiz_failed ? Color.red : Color(NSColor.secondaryLabelColor))
+                            .foregroundColor(elem.wrappedValue.quiz_passed ? Color("nav_correctColor") : elem.wrappedValue.quiz_failed ? Color("nav_incorrectColor") : Color("nav_textColor"))
                     }
                 }
                 .padding()
 
                 Spacer()
                 
-                Toggle("Flip Cards?", isOn: self.$cardSide)
+                Button(action: {
+                    self.cardSide.toggle()
+                }, label: {
+                    Text("Flip Cards")
+                        .foregroundColor(Color("nav_flipColor"))
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Study the Other Side")
 
                 Divider().padding(.horizontal, 20)
 
-                Text("Edit")
-                    .foregroundColor(Color(NSColor.textColor))
-                    .padding(.vertical, 5)
-                    .onTapGesture {
-                        saveUserData()
-                        self.quizView = false
-                        self.creationView = true
-                    }
-
-                Text("Close")
-                    .foregroundColor(Color(NSColor.linkColor))
-                    .padding(.bottom, 15)
-                    .onTapGesture {
-                        saveUserData()
-                        self.quizView = false
-                    }
+                Button(action: {
+                    saveUserData()
+                    self.quizView = false
+                    self.creationView = true
+                }, label: {
+                    Text("Edit")
+                        .foregroundColor(Color("nav_editColor"))
+                        .padding(.vertical, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Edit Deck")
+                
+                Button(action: {
+                    saveUserData()
+                    self.quizView = false
+                }, label: {
+                    Text("Close")
+                        .foregroundColor(Color("nav_closeColor"))
+                        .padding(.bottom, 15)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Close View")
             } // vstack
 
             VStack {
-                Spacer()
-                
-                ZStack {
-                    VStack {
-                        Text("Reset the cards or add more!")
-                        HStack {
-                            VStack {
-                                Image(systemName: "arrow.uturn.backward.circle")
-                                    .resizable()
-                                    .frame(width: 15, height: 15)
-                                
-                                Text("Reset")
-                                    .offset(x: 0, y:-5)
-                            }
-                            .foregroundColor(Color(NSColor.linkColor))
-                            .onTapGesture {
-                                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].quiz_reset()
-                                userStore.save(user: self.userDataStore.userData) { result in
-                                    switch result {
-                                    case .failure(let error):
-                                        fatalError(error.localizedDescription)
-                                    case .success(let uuid):
-                                        print(uuid)
-                                    }
-                                }
-                                self.deckCards = self.userDataStore.userData.getDeck().cards
-                                self.deckCard_frontIndex = -1
-                                self.deckCard_backIndex = -1
-                                self.deckCardsViews = drawCardViews()
-                            }
-                            
-                            Spacer()
-                            Divider().frame(height: 40)
-                            Spacer()
-                            
-                            VStack {
-                                Image(systemName: "plus.circle")
-                                    .resizable()
-                                    .frame(width: 15, height: 15)
-                                
-                                Text("Add")
-                                    .offset(x: 0, y:-5)
-                            }
-                            .foregroundColor(Color(NSColor.labelColor))
-                            .onTapGesture {
-                                saveUserData()
-                                self.quizView = false
-                                self.creationView = true
-                            }
-                        }
-                        .frame(width: 100)
-                    }
+                studyNav(current: 2, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, funcExec: saveUserData)
+            
+                VStack {
+                    Spacer()
                     
-                    ForEach(deckCardsViews) { deckCard in
-                        deckCard
-                            .zIndex(self.isTopCard(deckCard: deckCard) ? 1 : 0)
-                            .modifier(Shake(animatableData: CGFloat(self.wrongAttempts))) // Shake on incorrect
-                            .offset(x: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.width : 0, y: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.height : 0)
-                            .scaleEffect(self.dragState.isDragging && self.isTopCard(deckCard: deckCard) ? 0.95 : 1.0)
-                            .rotationEffect(Angle(degrees: self.isTopCard(deckCard: deckCard) ? Double( self.dragState.translation.width / 10) : 0))
-                            .animation(.interpolatingSpring(stiffness: 180, damping: 100))
-                            .transition(self.removalTransition)
-                            .gesture(LongPressGesture(minimumDuration: 0.01)
-                                .sequenced(before: DragGesture())
-                                .updating(self.$dragState, body: { (value, state, transaction) in
-                                    switch value {
-                                    case .first(true):
-                                        state = .pressing
-                                    case .second(true, let drag):
-                                        state = .dragging(translation: drag?.translation ?? .zero)
-                                    default:
-                                        break
-                                    }
-
-                                })
-                                .onChanged({ (value) in
-                                    guard case .second(true, let drag?) = value else {
-                                        return
-                                    }
-                                    if drag.translation.width < -self.dragThreshold {
-                                        self.removalTransition = .leadingBottom
-                                        self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
-                                    } else if drag.translation.width > self.dragThreshold {
-                                        self.removalTransition = .trailingBottom
-                                        self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
-                                    } else {
-                                        if self.isIncorrect {
-                                            self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
-                                        } else if self.isCorrect {
-                                            self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
-                                        } else {
-                                            self.deckCardsViews[0].bkgColor = Color("defaultCardBkgColor")
+                    ZStack {
+                        VStack {
+                            Text("Reset the cards or add more!")
+                            HStack {
+                                Button(action: {
+                                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].quiz_reset()
+                                    userStore.save(user: self.userDataStore.userData) { result in
+                                        switch result {
+                                        case .failure(let error):
+                                            fatalError(error.localizedDescription)
+                                        case .success(let uuid):
+                                            print(uuid)
                                         }
                                     }
-                                })
-                                .onEnded({ (value) in
-                                    guard case .second(true, let drag?) = value else {
-                                        return
+                                    self.deckCards = self.userDataStore.userData.getDeck().cards
+                                    self.deckCard_frontIndex = -1
+                                    self.deckCard_backIndex = -1
+                                    self.deckCardsViews = drawCardViews()
+                                }, label: {
+                                    VStack {
+                                        Image(systemName: "arrow.uturn.backward.circle")
+                                            .resizable()
+                                            .frame(width: 15, height: 15)
+                                        
+                                        Text("Reset")
+                                            .offset(x: 0, y:-5)
                                     }
-                                    if drag.translation.width < -self.dragThreshold {
-                                        self.moveCard(failed: true)
-                                    } else if drag.translation.width > self.dragThreshold {
-                                        self.moveCard(failed: false)
-                                    }
+                                    .foregroundColor(Color(NSColor.linkColor))
                                 })
-                            )
-                    }
-                } // zstack
-                
-                Spacer()
-                
-                // Text Input
-                let elem = AnyView(
-                    TextField("Type the answer here", text: self.$textInput, onCommit: {
-                        var compareTxt = self.deckCards[self.deckCard_frontIndex].back
-                        if (self.cardSide) {
-                            compareTxt = self.deckCards[self.deckCard_frontIndex].front
-                        }
-                        if (self.textInput != compareTxt) {
-                            withAnimation(.default) {
-                                self.wrongAttempts += 1
+                                .buttonStyle(PlainButtonStyle())
+                                .help("Re-study the Deck")
+                                
+                                Spacer()
+                                Divider().frame(height: 40)
+                                Spacer()
+                                
+                                Button(action: {
+                                    saveUserData()
+                                    self.quizView = false
+                                    self.creationView = true
+                                }, label: {
+                                    VStack {
+                                        Image(systemName: "plus.circle")
+                                            .resizable()
+                                            .frame(width: 15, height: 15)
+                                        
+                                        Text("Add")
+                                            .offset(x: 0, y:-5)
+                                    }
+                                    .foregroundColor(Color(NSColor.labelColor))
+                                })
+                                .buttonStyle(PlainButtonStyle())
+                                .help("Edit Deck")
                             }
-                            self.isIncorrect = true
-                            self.isCorrect = false
-                            self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
-                        } else {
-                            self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
-                            self.isIncorrect = false
-                            self.isCorrect = true
-                        }
-                    })
-                    .padding()
-                    .multilineTextAlignment(.center)
-                )
-                cardStruct_noHeight(elem: elem, width: self.width, radius: 10)
-                    .zIndex(-1)
-                
+                            .frame(width: 100)
+                        } // VStack
+                        
+                        ForEach(deckCardsViews) { deckCard in
+                            deckCard
+                                .zIndex(self.isTopCard(deckCard: deckCard) ? 1 : 0)
+                                .modifier(Shake(animatableData: CGFloat(self.wrongAttempts))) // Shake on incorrect
+                                .offset(x: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.width : 0, y: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.height : 0)
+                                .scaleEffect(self.dragState.isDragging && self.isTopCard(deckCard: deckCard) ? 0.95 : 1.0)
+                                .rotationEffect(Angle(degrees: self.isTopCard(deckCard: deckCard) ? Double( self.dragState.translation.width / 10) : 0))
+                                .animation(.interpolatingSpring(stiffness: 180, damping: 100))
+                                .transition(self.removalTransition)
+                                .gesture(LongPressGesture(minimumDuration: 0.01)
+                                    .sequenced(before: DragGesture())
+                                    .updating(self.$dragState, body: { (value, state, transaction) in
+                                        switch value {
+                                        case .first(true):
+                                            state = .pressing
+                                        case .second(true, let drag):
+                                            state = .dragging(translation: drag?.translation ?? .zero)
+                                        default:
+                                            break
+                                        }
+
+                                    })
+                                    .onChanged({ (value) in
+                                        guard case .second(true, let drag?) = value else {
+                                            return
+                                        }
+                                        if drag.translation.width < -self.dragThreshold {
+                                            self.removalTransition = .leadingBottom
+                                            self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
+                                        } else if drag.translation.width > self.dragThreshold {
+                                            self.removalTransition = .trailingBottom
+                                            self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
+                                        } else {
+                                            if self.isIncorrect {
+                                                self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
+                                            } else if self.isCorrect {
+                                                self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
+                                            } else {
+                                                self.deckCardsViews[0].bkgColor = Color("defaultCardBkgColor")
+                                            }
+                                        }
+                                    })
+                                    .onEnded({ (value) in
+                                        guard case .second(true, let drag?) = value else {
+                                            return
+                                        }
+                                        if drag.translation.width < -self.dragThreshold {
+                                            self.moveCard(failed: true)
+                                        } else if drag.translation.width > self.dragThreshold {
+                                            self.moveCard(failed: false)
+                                        }
+                                    })
+                                )
+                        } // Foreach
+                    } // zstack
+                    
+                    Spacer()
+                    
+                    // Text Input
+                    let elem = AnyView(
+                        TextField("Type the answer here", text: self.$textInput, onCommit: {
+                            var compareTxt = self.deckCards[self.deckCard_frontIndex].back
+                            if (self.cardSide) {
+                                compareTxt = self.deckCards[self.deckCard_frontIndex].front
+                            }
+                            if (self.textInput != compareTxt) {
+                                withAnimation(.default) {
+                                    self.wrongAttempts += 1
+                                }
+                                self.isIncorrect = true
+                                self.isCorrect = false
+                                self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
+                            } else {
+                                self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
+                                self.isIncorrect = false
+                                self.isCorrect = true
+                            }
+                        })
+                        .padding()
+                        .multilineTextAlignment(.center)
+                    )
+                    cardStruct_noHeight(elem: elem, width: self.width, radius: 10)
+                        .zIndex(-1)
+                    
+                } // vstack
+                .padding()
             } // vstack
-            .padding()
         } // nav
         .onChange(of: self.cardSide) { _bind in
             for i in 0..<self.deckCardsViews.count {

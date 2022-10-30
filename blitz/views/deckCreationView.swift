@@ -26,6 +26,7 @@ struct deckCreation: View {
     
     @State private var scrollIndex: Int?
     @State private var height: CGFloat
+    @State private var deleteAlert: Bool = false
     
     init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
         self.width = width
@@ -39,74 +40,118 @@ struct deckCreation: View {
     var body: some View {
         NavigationView {
             VStack {
-                Label("Home", systemImage: "house")
-                    .foregroundColor(Color(NSColor.headerTextColor))
-                    .padding(.top, 15)
-                    .padding(.bottom, 5)
-                    .onTapGesture {
-                        self.creationView = false
+                Button(action: {
+                    self.creationView = false
+                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
+                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
+                    userStore.save(user: self.userDataStore.userData) { result in
+                        switch result {
+                        case .failure(let error):
+                            fatalError(error.localizedDescription)
+                        case .success(let uuid):
+                            print(uuid)
+                        }
                     }
+                }, label: {
+                    Label("Home", systemImage: "house")
+                        .foregroundColor(Color("nav_homeColor"))
+                        .padding(.top, 15)
+                        .padding(.bottom, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Return Home")
                 
                 Divider().padding(.horizontal, 20)
                 
                 List {
-                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
-                        .onTapGesture {
-                            self.scrollIndex = 0
-                        }
+                    Button(action: {
+                        self.scrollIndex = 0
+                    }, label: {
+                        Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                            .foregroundColor(Color("nav_titleColor"))
+                    })
+                    .buttonStyle(PlainButtonStyle())
 
                     ForEachIndexed(self.$deckCards) { index, elem in
-                        Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
-                            .onTapGesture {
-                                self.scrollIndex = index + 1
-                            }
+                        Button(action: {
+                            self.scrollIndex = index + 1
+                        }, label: {
+                            Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
+                                .foregroundColor(Color("nav_textColor"))
+                        })
+                        .buttonStyle(PlainButtonStyle())
                     }
 
-                    Text("New Card")
-                        .foregroundColor(Color(NSColor.tertiaryLabelColor))
-                        .onTapGesture {
-                            self.deckCards.append(card())
-                        }
+                    Button(action: {
+                        self.deckCards.append(card())
+                    }, label: {
+                        Text("New Card")
+                            .foregroundColor(Color("nav_altColor"))
+                    })
+                    .buttonStyle(PlainButtonStyle())
+                    .help("Add New Card")
                 }
                 .padding(.horizontal)
 
                 Spacer()
                 
                 Divider().padding(.horizontal, 20)
-
-                Text("Delete")
-                    .foregroundColor(Color(NSColor.systemRed))
-                    .padding(.vertical, 5)
-                    .onTapGesture {
-                        self.creationView = false
-                        self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
-                        userStore.save(user: self.userDataStore.userData) { result in
-                            switch result {
-                            case .failure(let error):
-                                fatalError(error.localizedDescription)
-                            case .success(let uuid):
-                                print(uuid)
+                
+                Button(action: {
+                    self.deleteAlert = true
+                }, label: {
+                    Text("Delete")
+                        .foregroundColor(Color("nav_deleteColor"))
+                        .padding(.vertical, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .alert(isPresented: self.$deleteAlert) {
+                    Alert(
+                        title: Text("Are you sure?"),
+                        message: Text("Are you sure you would like to delete this deck?"),
+                        primaryButton: .destructive(
+                            Text("Yes"),
+                            action: {
+                                self.creationView = false
+                                self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
+                                userStore.save(user: self.userDataStore.userData) { result in
+                                    switch result {
+                                    case .failure(let error):
+                                        fatalError(error.localizedDescription)
+                                    case .success(let uuid):
+                                        print(uuid)
+                                    }
+                                }
                             }
+                        ),
+                        secondaryButton: .default(
+                            Text("No"),
+                            action: { }
+                        )
+                    )
+                }
+                .help("Delete the Deck")
+                
+                Button(action: {
+                    self.creationView = false
+                    self.fullView = true
+                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
+                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
+                    userStore.save(user: self.userDataStore.userData) { result in
+                        switch result {
+                        case .failure(let error):
+                            fatalError(error.localizedDescription)
+                        case .success(let uuid):
+                            print(uuid)
                         }
                     }
-                    
-                Text("Save")
-                    .foregroundColor(Color(NSColor.linkColor))
-                    .padding(.bottom, 15)
-                    .onTapGesture {
-                        self.creationView = false
-                        self.fullView = true
-                        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
-                        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
-                        userStore.save(user: self.userDataStore.userData) { result in
-                            switch result {
-                            case .failure(let error):
-                                fatalError(error.localizedDescription)
-                            case .success(let uuid):
-                                print(uuid)
-                            }
-                        }
-                    }
+                }, label: {
+                    Text("Save")
+                        .foregroundColor(Color("nav_closeColor"))
+                        .padding(.bottom, 15)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Save the Deck")
             }
 
             GeometryReader { geo in
@@ -136,9 +181,8 @@ struct deckCreation: View {
                         }
 
                         // Spacer
-                        Rectangle()
-                            .foregroundColor(Color.clear)
-                            .frame(width: geo.size.width - 0, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
+                        Color.clear
+                            .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
 
                         // Add Card
                         addCardEdit(width: self.width)
@@ -273,11 +317,11 @@ struct normalCardEdit: View {
                         }
                         .onTapGesture { self.press.toggle() }
                     }
-                }
+                } // vstack
                 .padding(14)
                 .frame(width: self.width)
                 .rotation3DEffect(.degrees(self.press ? 180 : 0), axis: (x: -1, y: 0, z: 0))
-            }
+            } // zstack
         )
         cardView_noBindings(elem: elem, width: self.width, press: self.$press, hover: self.$hover)
     }

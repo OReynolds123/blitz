@@ -10,10 +10,10 @@ import SwiftUI
 struct blitzHomeView: View {
     @StateObject private var userDataStore = userStore()
     
-    @State private var creationView = false
-    @State private var testView = false
-    @State private var fullView = false
-    @State private var quizView = false
+    @Binding var creationView: Bool
+    @Binding var testView: Bool
+    @Binding var fullView: Bool
+    @Binding var quizView: Bool
     
     @State private var cols: Int = 3
     
@@ -23,38 +23,79 @@ struct blitzHomeView: View {
         GeometryReader { geo in
             NavigationView {
                 VStack {
-                    Label("Home", systemImage: "house")
-                        .foregroundColor(Color(NSColor.headerTextColor))
-                        .padding(.top, 15)
-                        .padding(.bottom, 5)
+                    Button(action: {
+                        
+                    }, label: {
+                        Label("Home", systemImage: "house")
+                            .foregroundColor(Color("nav_homeColor"))
+                            .padding(.top, 15)
+                            .padding(.bottom, 5)
+                    })
+                    .buttonStyle(PlainButtonStyle())
+                    .help("Return Home")
                     
                     Divider().padding(.horizontal, 20)
                     
                     List {
                         ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
-                            Text(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title)
-                                .onTapGesture {
+                            Button(action: {
+                                openDeck(index: index)
+                                self.fullView = true
+                            }, label: {
+                                Text(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title)
+                                    .foregroundColor(Color("nav_textColor"))
+                            })
+                            .contextMenu {
+                                Button("View Full Deck") {
                                     openDeck(index: index)
                                     self.fullView = true
                                 }
+                                Button("Test Yourself") {
+                                    openDeck(index: index)
+                                    self.testView = true
+                                }
+                                Button("Quiz Yourself") {
+                                    openDeck(index: index)
+                                    self.quizView = true
+                                }
+                                Button("Edit Deck") {
+                                    openDeck(index: index)
+                                    self.creationView = true
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help("Quiz Yourself")
                         }
                         
-                        Text("New Deck")
-                            .foregroundColor(Color(NSColor.tertiaryLabelColor))
-                            .onTapGesture {
+                        Button(action: {
+                            createDeck()
+                        }, label: {
+                            Text("New Deck")
+                                .foregroundColor(Color("nav_altColor"))
+                        })
+                        .contextMenu {
+                            Button("New Deck") {
                                 createDeck()
                             }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Add Deck")
                     }
                     .padding(.horizontal)
                     
                     Spacer()
-                }
+                } // VStack
 
                 ScrollView(.vertical) {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum:self.width), spacing: 10, alignment: .leading)]) {
                         addDeck(width: self.width)
                             .onTapGesture {
                                 createDeck()
+                            }
+                            .contextMenu {
+                                Button("New Deck") {
+                                    createDeck()
+                                }
                             }
                         
                         ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
@@ -64,90 +105,96 @@ struct blitzHomeView: View {
                                     self.fullView = true
                                 }
                                 .contextMenu {
-                                    Button {
+                                    Button("View Deck") {
                                         openDeck(index: index)
                                         self.fullView = true
-                                    } label: {
-                                        Text("Full View")
                                     }
-                                    Button {
+                                    Button("Test Yourself") {
                                         openDeck(index: index)
                                         self.testView = true
-                                    } label: {
-                                        Text("Test View")
                                     }
-                                    Button {
+                                    Button("Quiz Yourself") {
                                         openDeck(index: index)
                                         self.quizView = true
-                                    } label: {
-                                        Text("Quiz View")
+                                    }
+                                    Button("Edit Deck") {
+                                        openDeck(index: index)
+                                        self.creationView = true
                                     }
                                 }
                         }
                     }
                     .padding()
                 }
+                .navigationTitle("Blitz")
+                .toolbar {
+                    ToolbarItem(placement: .navigation) {
+                        Button(action: {
+                            toggleSidebar()
+                        }, label: {
+                            Image(systemName: "sidebar.left")
+                        })
+                        .help("Toggle Sidebar")
+                    }
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(action: {
+                            createDeck()
+                        }, label: {
+                            Label("New Deck", systemImage: "plus")
+                        })
+                        .help("Add Deck")
+                    }
+                }
                 .sheet(isPresented: self.$creationView) {
                     deckCreation(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                        .background(Color(NSColor.windowBackgroundColor))
                 }
                 .sheet(isPresented: self.$testView) {
                     deckTestView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                        .background(Color(NSColor.windowBackgroundColor))
                 }
                 .sheet(isPresented: self.$fullView) {
                     deckFullView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                        .background(Color(NSColor.windowBackgroundColor))
                 }
                 .sheet(isPresented: self.$quizView) {
                     deckQuizView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
+                        .background(Color(NSColor.windowBackgroundColor))
                 }
             } // nav
         } // geo
+        .onChange(of: self.fullView) { _bind in
+            load()
+        }
         .onChange(of: self.creationView) { _bind in
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                }
-            }
+            load()
         }
         .onChange(of: self.testView) { _bind in
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                }
-            }
+            load()
         }
         .onChange(of: self.quizView) { _bind in
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                }
-            }
+            load()
         }
         .onAppear {
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                }
-            }
+            load()
         }
-        .frame(minWidth: 800, minHeight: 400)
+        .frame(minWidth: 800, minHeight: 500)
     } // body
     
+    private func load() {
+        userStore.load { result in
+            switch result {
+            case .failure(let error):
+                fatalError(error.localizedDescription)
+            case .success(let userData):
+                self.userDataStore.userData = userData
+            }
+        }
+    }
     private func createDeck() {
         self.userDataStore.userData.append(deck: deck())
         openDeck(index: self.userDataStore.userData.decks.count - 1)
@@ -164,48 +211,20 @@ struct blitzHomeView: View {
             }
         }
     }
+    
+    private func toggleSidebar() {
+        NSApp.keyWindow?
+            .contentViewController?
+            .tryToPerform(
+                #selector(NSSplitViewController.toggleSidebar(_:)),
+                with: nil
+            )
+    }
 }
-            
-            
-//ForEach(0..<Int(ceil(Double(self.userDataDecks.count + 1) / Double(self.cols))), id:\.self) { i in
-//    HStack {
-//        if i == 0 {
-//            addDeck(width: self.width, press: self.$deckCreationPresented)
-//
-//            ForEach(0..<(self.cols - 1), id:\.self) { j in
-//                if ((i * (self.cols - 1)) + j) < (self.userDataDecks.count + 1) {
-//                    cardStack(title: self.userDataDecks[(i * (self.cols - 1)) + j].title, width: self.width, press: self.$deckTestPresented)
-//                        .padding(.horizontal, 5)
-//                        .padding(.vertical, 10)
-//                        .onTapGesture {
-//                            self.clickedDeck = (i * (self.cols - 1)) + j
-//                        }
-//                }
-//            }
-//        } else {
-//            ForEach(0..<self.cols, id:\.self) { j in
-//                if ((i * self.cols) + j - 1) < (self.userDataDecks.count) {
-//                    cardStack(title: self.userDataDecks[(i * self.cols) + j - 1].title, width: self.width, press: self.$deckTestPresented)
-//                        .padding(.horizontal, 5)
-//                        .padding(.vertical, 10)
-//                        .onTapGesture {
-//                            self.clickedDeck = (i * self.cols) + j - 1
-//                        }
-//                }
-//            }
-//        }
-//    }
-//    .padding(.horizontal, 10)
-//    .frame(width: geo.size.width - 14)
-//}
-//.frame(width: geo.size.width)
-//.onChange(of: geo.size.width, perform : { _width in
-//    self.cols = max(Int(floor((_width - 100) / (self.width + 10))), 1)
-//})
 
 struct blitzHomeView_Previews: PreviewProvider {
     static var previews: some View {
-        blitzHomeView()
+        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
     }
 }
 
@@ -217,19 +236,24 @@ struct addDeck: View {
     @State private var hover: Bool = false
     
     var body: some View {
-        let elem = AnyView(
-            Image(systemName: "plus")
-                .resizable()
-                .padding(25)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.blue)
-                .frame(width: self.width - 100, height: self.width - 100)
-        )
-        cardStruct(elem: elem, width: self.width)
-            .onHover { hover in self.hover = hover }
-            .offset(x: 0, y: self.hover ? -2 : 0)
-            .scaleEffect(self.hover ? 1.01 : 1)
-            .animation(.interpolatingSpring(stiffness: 180, damping: 100))
+        ZStack {
+            let elem = AnyView(
+                Image(systemName: "plus")
+                    .resizable()
+                    .padding(25)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.blue)
+                    .frame(width: self.width - 100, height: self.width - 100)
+            )
+            cardStruct(elem: elem, width: self.width)
+                .onHover { hover in
+                    self.hover = hover
+                }
+                .offset(x: 0, y: self.hover ? -2 : 0)
+                .scaleEffect(self.hover ? 1.01 : 1)
+                .animation(.interpolatingSpring(stiffness: 180, damping: 100))
+        }
+        .help("Add Deck")
     }
 }
 
@@ -253,6 +277,8 @@ struct cardStack: View {
     var body: some View {
         let elem = AnyView(
             Text(self.title)
+                .multilineTextAlignment(.center)
+                .padding()
         )
         ZStack {
             ForEach(0..<self.cardAmount) { i in
@@ -260,10 +286,82 @@ struct cardStack: View {
                     .offset(x: ((CGFloat(i) * -self.offsetAmount) + self.offsetAmount), y: ((CGFloat(i) * self.offsetAmount) - self.offsetAmount))
             }
         }
-        .onHover { hover in self.hover = hover }
+        .onHover { hover in
+            self.hover = hover
+        }
         .offset(x: 0, y: self.hover ? -2 : 0)
         .scaleEffect(self.hover ? 1.01 : 1)
         .animation(.interpolatingSpring(stiffness: 180, damping: 100))
         .frame(width: self.width, height: self.height, alignment: .center)
+        .help("View Deck")
+    }
+}
+
+struct studyNav: View {
+    @State var current: Int
+    
+    @Binding var creationView: Bool
+    @Binding var testView: Bool
+    @Binding var fullView: Bool
+    @Binding var quizView: Bool
+    
+    var funcExec: () -> Void = { }
+    
+    var body: some View {
+        HStack {
+            Spacer()
+                        
+            Button(action: {
+                closeAll()
+                self.fullView = true
+            }, label: {
+                Label("Flashcards", systemImage: "")
+                    .foregroundColor(self.current == 0 ? Color("nav_closeColor") : Color("nav_titleColor"))
+            })
+            .buttonStyle(PlainButtonStyle())
+            .help("View Flashcards")
+            
+            Button(action: {
+                closeAll()
+                self.testView = true
+            }, label: {
+                Label("Test", systemImage: "")
+                    .foregroundColor(self.current == 1 ? Color("nav_closeColor") : Color("nav_titleColor"))
+            })
+            .buttonStyle(PlainButtonStyle())
+            .help("Test Yourself")
+            
+            Button(action: {
+                closeAll()
+                self.quizView = true
+            }, label: {
+                Label("Quiz", systemImage: "")
+                    .foregroundColor(self.current == 2 ? Color("nav_closeColor") : Color("nav_titleColor"))
+            })
+            .buttonStyle(PlainButtonStyle())
+            .help("Quiz Yourself")
+            
+            Spacer()
+            
+            Button(action: {
+                closeAll()
+            }, label: {
+                Image(systemName: "xmark")
+                    .foregroundColor(Color(NSColor.labelColor))
+            })
+            .buttonStyle(PlainButtonStyle())
+            .help("Close View")
+        }
+        .padding()
+        .background(Color(red: 235, green: 235, blue: 235, opacity: 0.1))
+        .overlay(Divider().background(Color(NSColor.gridColor)), alignment: .bottom)
+    }
+    
+    private func closeAll() {
+        self.funcExec()
+        self.fullView = false
+        self.testView = false
+        self.quizView = false
+        self.creationView = false
     }
 }

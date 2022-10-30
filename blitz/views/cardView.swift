@@ -153,7 +153,6 @@ struct cardStruct: View {
                     .frame(width: self.width, height: self.height)
             )
             .frame(width: self.width, height: self.height)
-            .accessibility(addTraits: .isButton)
     }
 }
 struct cardStruct_noHeight: View {
@@ -169,7 +168,6 @@ struct cardStruct_noHeight: View {
                     .fill(self.bkgColor)
                     .shadow(color: Color.black.opacity(0.2), radius: (self.radius / 5), x: 2, y: 2)
             )
-        .frame(width: self.width)
-        .accessibility(addTraits: .isButton)
+            .frame(width: self.width)
     }
 }

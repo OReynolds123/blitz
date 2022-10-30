@@ -39,9 +39,9 @@ class userStore: ObservableObject {
     
     private static func fileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("user_3.data")
+            .appendingPathComponent("blitz_1.data")
     }
-    
+        
     static func load(completion: @escaping (Result<user, Error>)->Void) {
         DispatchQueue.global(qos: .background).async {
             do {

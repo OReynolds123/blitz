@@ -18,31 +18,40 @@ struct deckFullView: View {
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
     @State private var scrollIndex: Int?
-    
+        
     var body: some View {
         NavigationView {
             VStack {
-                Label("Home", systemImage: "house")
-                    .foregroundColor(Color(NSColor.headerTextColor))
-                    .padding(.top, 15)
-                    .padding(.bottom, 5)
-                    .onTapGesture {
-                        self.fullView = false
-                    }
+                Button(action: {
+                    self.fullView = false
+                }, label: {
+                    Label("Home", systemImage: "house")
+                        .foregroundColor(Color("nav_homeColor"))
+                        .padding(.top, 15)
+                        .padding(.bottom, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Return Home")
 
                 Divider().padding(.horizontal, 20)
 
                 List {
-                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
-                        .onTapGesture {
-                            self.scrollIndex = 0
-                        }
+                    Button(action: {
+                        self.scrollIndex = 0
+                    }, label: {
+                        Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                            .foregroundColor(Color("nav_titleColor"))
+                    })
+                    .buttonStyle(PlainButtonStyle())
 
                     ForEachIndexed(self.$deckCards) { index, elem in
-                        Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
-                            .onTapGesture {
-                                self.scrollIndex = index
-                            }
+                        Button(action: {
+                            self.scrollIndex = index
+                        }, label: {
+                            Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
+                                .foregroundColor(Color("nav_textColor"))
+                        })
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding(.horizontal)
@@ -51,48 +60,57 @@ struct deckFullView: View {
 
                 Divider().padding(.horizontal, 20)
 
-                Text("Edit")
-                    .foregroundColor(Color(NSColor.textColor))
-                    .padding(.vertical, 5)
-                    .onTapGesture {
-                        self.fullView = false
-                        self.creationView = true
-                    }
-
-                Text("Close")
-                    .foregroundColor(Color(NSColor.linkColor))
-                    .padding(.bottom, 15)
-                    .onTapGesture {
-                        self.fullView = false
-                    }
+                Button(action: {
+                    self.fullView = false
+                    self.creationView = true
+                }, label: {
+                    Text("Edit")
+                        .foregroundColor(Color("nav_editColor"))
+                        .padding(.vertical, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Edit Deck")
+                
+                Button(action: {
+                    self.fullView = false
+                }, label: {
+                    Text("Close")
+                        .foregroundColor(Color("nav_closeColor"))
+                        .padding(.bottom, 15)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Close View")
             } // vstack
-
-            GeometryReader { geo in
-                ScrollView {
-                    ScrollViewReader { (proxy: ScrollViewProxy) in
-                        Rectangle()
-                            .foregroundColor(Color.clear)
-                            .frame(width: geo.size.width)
-                                   
-                        VStack {
-                            ForEachIndexed(self.$deckCards) { index, elem in
-                                fullCard(front: elem.wrappedValue.front, back: elem.wrappedValue.back)
-                                    .id(index)
-                            }
-                            .onChange(of: self.scrollIndex) { target in
-                                if let target = target {
-                                    self.scrollIndex = nil
-                                    withAnimation {
-                                        proxy.scrollTo(target, anchor: .center)
+            
+            VStack {
+                studyNav(current: 0, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                
+                GeometryReader { geo in
+                    ScrollView {
+                        ScrollViewReader { (proxy: ScrollViewProxy) in
+                            Color.clear
+                                .frame(width: geo.size.width - 14)
+                                       
+                            VStack {
+                                ForEachIndexed(self.$deckCards) { index, elem in
+                                    fullCard(front: elem.wrappedValue.front, back: elem.wrappedValue.back)
+                                        .id(index)
+                                }
+                                .onChange(of: self.scrollIndex) { target in
+                                    if let target = target {
+                                        self.scrollIndex = nil
+                                        withAnimation {
+                                            proxy.scrollTo(target, anchor: .center)
+                                        }
                                     }
                                 }
                             }
+                            .padding([.leading, .bottom, .trailing])
                         }
-                        .padding()
-                    }
-                }
-                .frame(width: geo.size.width)
-            }
+                    } // scrollview
+                    .frame(width: geo.size.width)
+                } // geo
+            } // vstack
         } // nav
         .onAppear {
             userStore.load { result in
@@ -157,4 +175,3 @@ struct fullCard: View {
         cardStruct_noHeight(elem: elem, width: self.width, radius: 10, bkgColor: self.bkgColor)
     }
 }
-

@@ -41,151 +41,182 @@ struct deckTestView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Label("Home", systemImage: "house")
-                    .foregroundColor(Color(NSColor.headerTextColor))
-                    .padding(.top, 15)
-                    .padding(.bottom, 5)
-                    .onTapGesture {
-                        saveUserData()
-                        self.testView = false
-                    }
-
+                Button(action: {
+                    saveUserData()
+                    self.testView = false
+                }, label: {
+                    Label("Home", systemImage: "house")
+                        .foregroundColor(Color("nav_homeColor"))
+                        .padding(.top, 15)
+                        .padding(.bottom, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Return Home")
+                
                 Divider().padding(.horizontal, 20)
 
                 List {
                     Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                        .foregroundColor(Color("nav_titleColor"))
                     
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Text(self.cardSide ? (elem.wrappedValue.back == "" ? "Card \(index + 1)" : elem.wrappedValue.back) : (elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front))
-                            .foregroundColor(elem.wrappedValue.test_passed ? Color.green : elem.wrappedValue.test_failed ? Color.red : Color(NSColor.secondaryLabelColor))
+                            .foregroundColor(elem.wrappedValue.test_passed ? Color("nav_correctColor") : elem.wrappedValue.test_failed ? Color("nav_incorrectColor") : Color("nav_textColor"))
                     }
                 }
                 .padding()
 
                 Spacer()
                 
-                Toggle("Flip Cards?", isOn: self.$cardSide)
+                Button(action: {
+                    self.cardSide.toggle()
+                }, label: {
+                    Text("Flip Cards")
+                        .foregroundColor(Color("nav_flipColor"))
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Study the Other Side")
 
                 Divider().padding(.horizontal, 20)
 
-                Text("Edit")
-                    .foregroundColor(Color(NSColor.textColor))
-                    .padding(.vertical, 5)
-                    .onTapGesture {
-                        saveUserData()
-                        self.testView = false
-                        self.creationView = true
-                    }
-
-                Text("Close")
-                    .foregroundColor(Color(NSColor.linkColor))
-                    .padding(.bottom, 15)
-                    .onTapGesture {
-                        saveUserData()
-                        self.testView = false
-                    }
+                Button(action: {
+                    saveUserData()
+                    self.testView = false
+                    self.creationView = true
+                }, label: {
+                    Text("Edit")
+                        .foregroundColor(Color("nav_editColor"))
+                        .padding(.vertical, 5)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Edit Deck")
+                
+                Button(action: {
+                    saveUserData()
+                    self.testView = false
+                }, label: {
+                    Text("Close")
+                        .foregroundColor(Color("nav_closeColor"))
+                        .padding(.bottom, 15)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Close View")
             } // vstack
 
-            ZStack {
-                VStack {
-                    Text("Reset the cards or add more!")
-                    HStack {
-                        VStack {
-                            Image(systemName: "arrow.uturn.backward.circle")
-                                .resizable()
-                                .frame(width: 15, height: 15)
-                            
-                            Text("Reset")
-                                .offset(x: 0, y:-5)
-                        }
-                        .foregroundColor(Color(NSColor.linkColor))
-                        .onTapGesture {
-                            self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].test_reset()
-                            userStore.save(user: self.userDataStore.userData) { result in
-                                switch result {
-                                case .failure(let error):
-                                    fatalError(error.localizedDescription)
-                                case .success(let uuid):
-                                    print(uuid)
-                                }
-                            }
-                            self.deckCards = self.userDataStore.userData.getDeck().cards
-                            self.deckCard_frontIndex = -1
-                            self.deckCard_backIndex = -1
-                            self.deckCardsViews = drawCardViews()
-                        }
-                        
-                        Spacer()
-                        Divider().frame(height: 40)
-                        Spacer()
-                        
-                        VStack {
-                            Image(systemName: "plus.circle")
-                                .resizable()
-                                .frame(width: 15, height: 15)
-                            
-                            Text("Add")
-                                .offset(x: 0, y:-5)
-                        }
-                        .foregroundColor(Color(NSColor.labelColor))
-                        .onTapGesture {
-                            saveUserData()
-                            self.testView = false
-                            self.creationView = true
-                        }
-                    }
-                    .frame(width: 100)
-                }
+            VStack {
+                studyNav(current: 1, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, funcExec: saveUserData)
                 
-                ForEach(deckCardsViews) { deckCard in
-                    deckCard
-                        .zIndex(self.isTopCard(deckCard: deckCard) ? 1 : 0)
-                        .offset(x: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.width : 0, y: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.height : 0)
-                        .scaleEffect(self.dragState.isDragging && self.isTopCard(deckCard: deckCard) ? 0.95 : 1.0)
-                        .rotationEffect(Angle(degrees: self.isTopCard(deckCard: deckCard) ? Double( self.dragState.translation.width / 10) : 0))
-                        .animation(.interpolatingSpring(stiffness: 180, damping: 100))
-                        .transition(self.removalTransition)
-                        .gesture(LongPressGesture(minimumDuration: 0.01)
-                            .sequenced(before: DragGesture())
-                            .updating(self.$dragState, body: { (value, state, transaction) in
-                                switch value {
-                                case .first(true):
-                                    state = .pressing
-                                case .second(true, let drag):
-                                    state = .dragging(translation: drag?.translation ?? .zero)
-                                default:
-                                    break
+                Spacer()
+                
+                ZStack {
+                    VStack {
+                        Text("Reset the cards or add more!")
+                        HStack {
+                            Button(action: {
+                                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].test_reset()
+                                userStore.save(user: self.userDataStore.userData) { result in
+                                    switch result {
+                                    case .failure(let error):
+                                        fatalError(error.localizedDescription)
+                                    case .success(let uuid):
+                                        print(uuid)
+                                    }
                                 }
+                                self.deckCards = self.userDataStore.userData.getDeck().cards
+                                self.deckCard_frontIndex = -1
+                                self.deckCard_backIndex = -1
+                                self.deckCardsViews = drawCardViews()
+                            }, label: {
+                                VStack {
+                                    Image(systemName: "arrow.uturn.backward.circle")
+                                        .resizable()
+                                        .frame(width: 15, height: 15)
+                                    
+                                    Text("Reset")
+                                        .offset(x: 0, y:-5)
+                                }
+                                .foregroundColor(Color(NSColor.linkColor))
+                            })
+                            .buttonStyle(PlainButtonStyle())
+                            .help("Re-study the Deck")
+                            
+                            Spacer()
+                            Divider().frame(height: 40)
+                            Spacer()
+                            
+                            Button(action: {
+                                saveUserData()
+                                self.testView = false
+                                self.creationView = true
+                            }, label: {
+                                VStack {
+                                    Image(systemName: "plus.circle")
+                                        .resizable()
+                                        .frame(width: 15, height: 15)
+                                    
+                                    Text("Add")
+                                        .offset(x: 0, y:-5)
+                                }
+                                .foregroundColor(Color(NSColor.labelColor))
+                            })
+                            .buttonStyle(PlainButtonStyle())
+                            .help("Edit Deck")
+                        }
+                        .frame(width: 100)
+                    }
+                    
+                    ForEach(deckCardsViews) { deckCard in
+                        deckCard
+                            .zIndex(self.isTopCard(deckCard: deckCard) ? 1 : 0)
+                            .offset(x: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.width : 0, y: self.isTopCard(deckCard: deckCard) ? self.dragState.translation.height : 0)
+                            .scaleEffect(self.dragState.isDragging && self.isTopCard(deckCard: deckCard) ? 0.95 : 1.0)
+                            .rotationEffect(Angle(degrees: self.isTopCard(deckCard: deckCard) ? Double( self.dragState.translation.width / 10) : 0))
+                            .animation(.interpolatingSpring(stiffness: 180, damping: 100))
+                            .transition(self.removalTransition)
+                            .gesture(LongPressGesture(minimumDuration: 0.01)
+                                .sequenced(before: DragGesture())
+                                .updating(self.$dragState, body: { (value, state, transaction) in
+                                    switch value {
+                                    case .first(true):
+                                        state = .pressing
+                                    case .second(true, let drag):
+                                        state = .dragging(translation: drag?.translation ?? .zero)
+                                    default:
+                                        break
+                                    }
 
-                            })
-                            .onChanged({ (value) in
-                                guard case .second(true, let drag?) = value else {
-                                    return
-                                }
-                                if drag.translation.width < -self.dragThreshold {
-                                    self.removalTransition = .leadingBottom
-                                    self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
-                                } else if drag.translation.width > self.dragThreshold {
-                                    self.removalTransition = .trailingBottom
-                                    self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
-                                } else {
-                                    self.deckCardsViews[0].bkgColor = Color("defaultCardBkgColor")
-                                }
-                            })
-                            .onEnded({ (value) in
-                                guard case .second(true, let drag?) = value else {
-                                    return
-                                }
-                                if drag.translation.width < -self.dragThreshold {
-                                    self.moveCard(failed: true)
-                                } else if drag.translation.width > self.dragThreshold {
-                                    self.moveCard(failed: false)
-                                }
-                            })
-                        )
-                }
-            } // zstack
-            .padding()
+                                })
+                                .onChanged({ (value) in
+                                    guard case .second(true, let drag?) = value else {
+                                        return
+                                    }
+                                    if drag.translation.width < -self.dragThreshold {
+                                        self.removalTransition = .leadingBottom
+                                        self.deckCardsViews[0].bkgColor = Color("cardIncorrectBkgColor")
+                                    } else if drag.translation.width > self.dragThreshold {
+                                        self.removalTransition = .trailingBottom
+                                        self.deckCardsViews[0].bkgColor = Color("cardCorrectBkgColor")
+                                    } else {
+                                        self.deckCardsViews[0].bkgColor = Color("defaultCardBkgColor")
+                                    }
+                                })
+                                .onEnded({ (value) in
+                                    guard case .second(true, let drag?) = value else {
+                                        return
+                                    }
+                                    if drag.translation.width < -self.dragThreshold {
+                                        self.moveCard(failed: true)
+                                    } else if drag.translation.width > self.dragThreshold {
+                                        self.moveCard(failed: false)
+                                    }
+                                })
+                            )
+                    }
+                } // zstack
+                .padding()
+                
+                Spacer()
+            } // vstack
         } // nav
         .onChange(of: self.cardSide) { _bind in
             for i in 0..<self.deckCardsViews.count {
@@ -212,7 +243,7 @@ struct deckTestView: View {
         var amt = 0
         for index in 0..<self.deckCards.count {
             if (amt >= 2) { break }
-            if (!self.deckCards[index].quiz_passed) {
+            if (!self.deckCards[index].test_passed) {
                 if (amt == 0) {
                     self.deckCard_frontIndex = index
                 } else if (amt == 1) {

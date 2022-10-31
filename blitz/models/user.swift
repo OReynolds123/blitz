@@ -31,10 +31,6 @@ struct user: Codable, Identifiable, Hashable {
         self.deckIndex = index
     }
     
-    mutating func changeInitLaunch() {
-        self.initialLaunch = false
-    }
-    
     func getDeck() -> deck {
         return self.decks[self.deckIndex]
     }
@@ -45,7 +41,7 @@ class userStore: ObservableObject {
     
     private static func fileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("blitz_3.data")
+            .appendingPathComponent("user_7.data")
     }
         
     static func load(completion: @escaping (Result<user, Error>)->Void) {

@@ -118,11 +118,6 @@ struct initHelper: View {
             .buttonStyle(DefaultButtonStyle())
         }
         .padding()
-    }
-}
-
-struct blitzApp_Previews: PreviewProvider {
-    static var previews: some View {
-        initHelper(initView: .constant(false))
+        .frame(idealWidth: 400)
     }
 }

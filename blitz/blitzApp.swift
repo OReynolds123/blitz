@@ -21,7 +21,7 @@ struct blitzApp: App {
         WindowGroup {
             blitzHomeView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, initView: self.$initView)
                 .sheet(isPresented: self.$initView) {
-                    initHelper(initView: self.$initView)
+                    initHelper(initView: self.$initView, creationView: self.$creationView)
                 }
         }
         .commands {
@@ -73,51 +73,85 @@ struct blitzApp: App {
 }
 
 struct initHelper: View {
+    @StateObject private var userDataStore = userStore()
+    
     @Binding var initView: Bool
+    @Binding var creationView: Bool
+    
+    private let txtArr: [textArr] = [
+        textArr(title: "Home", desc:"The main home page where you can see all of your study decks. Press on a deck to study it or right click to quickly go to a certain study mode."),
+        textArr(title: "Creation/Edit Mode", desc: "Here you can give a deck title and create cards for studying. Use the Photo-To-Text feature (camera icon on the top right of the card) to quickly add text from your photos!"),
+        textArr(title: "Flashcard Mode", desc: "This mode lets you see the front and back of all of your cards."),
+        textArr(title: "Test Mode", desc: "This mode lets you test yourself. Simply click the card to see the other side and swipe left or right to see the next card. By swipping left, the card will be flagged as correct and will disappear from the deck, and swipping right will flag the card as incorrect and will reappear in the deck. Use the 'Flip Cards' button (bottom of the navigation bar on the left) to flip all of the cards and study the other side."),
+        textArr(title: "Quiz Mode", desc: "This mode lets you quiz yourself. Type the opposite side of the card in the input box and press enter to check yourself. The card will light up green or red depending if you are correct or not. Like Test mode, click the card to see the other side and swipe left or right to see the next card. By swipping left, the card will be flagged as correct and will disappear from the deck, and swipping right will flag the card as incorrect and will reappear in the deck. Use the 'Flip Cards' button (bottom of the navigation bar on the left) to flip all of the cards and study the other side.")
+    ]
     
     var body: some View {
         VStack {
-            Text("Start Studying")
-                .font(.title)
+            Image("AppIcon")
+                .resizable()
+                .frame(width: 150, height: 150)
             
-            Divider().frame(width: 100)
+//            Text("Start Studying")
+//                .font(.title)
+//
+//            Divider().frame(width: 100)
             
             VStack(alignment: .leading) {
-                Text("Welcome to Blitz where studying using flashcards becomes much quicker and simpler with the Blitz app.")
+                Text("Welcome to Blitz where studying using flashcards becomes much quicker and simpler.")
                 
                 Spacer()
                 
-                VStack(alignment: .leading) {
-                    Text("Home")
-                        .font(.headline)
-                    Text("Start here by clicking Create deck under home or in the deck selection")
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .leading) {
-                    Text("Deck Title and Templete")
-                        .font(.headline)
-                    Text("Here you can give a Deck Title, customize your decks Card Color, Text Color, and Font Type that will apply to all of your cards")
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .leading) {
-                    Text("Front and Back of card Editing mode")
-                        .font(.headline)
-                    Text("Edit and use the text API feature where you can upload any photo or document and translate it into editable text")
+                ForEach(self.txtArr) { elem in
+                    VStack(alignment: .leading) {
+                        Text(elem.title)
+                            .font(.headline)
+                        
+                        Text(elem.desc)
+                    }
+                    Spacer()
                 }
             }
             
             Button(action: {
                 self.initView = false
+                if self.userDataStore.userData.decks.count > 0 {
+                    if self.userDataStore.userData.decks[0].title == "Tutorial Deck" {
+                        self.userDataStore.userData.changeIndex(index: 0)
+                        userStore.save(user: self.userDataStore.userData) { result in
+                            switch result {
+                            case .failure(let error):
+                                fatalError(error.localizedDescription)
+                            case .success(let uuid):
+                                print(uuid)
+                            }
+                        }
+                        self.creationView = true
+                    }
+                }
+                
             }, label: {
                 Text("Let's Begin")
             })
             .buttonStyle(DefaultButtonStyle())
         }
         .padding()
-        .frame(idealWidth: 400)
+        .frame(idealWidth: 600)
+        .onAppear {
+            userStore.load { result in
+                switch result {
+                case .failure(let error):
+                    fatalError(error.localizedDescription)
+                case .success(let userData):
+                    self.userDataStore.userData = userData
+                }
+            }
+        }
+    } // body
+    
+    private struct textArr: Identifiable {
+        let title: String
+        let desc: String
+        var id: String { title }
     }
 }

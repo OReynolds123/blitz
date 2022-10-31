@@ -89,7 +89,7 @@ struct deckFullView: View {
                     ScrollView {
                         ScrollViewReader { (proxy: ScrollViewProxy) in
                             Color.clear
-                                .frame(width: geo.size.width - 14)
+                                .frame(width: geo.size.width) // - 14
                                        
                             VStack {
                                 ForEachIndexed(self.$deckCards) { index, elem in

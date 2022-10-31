@@ -16,6 +16,7 @@ struct blitzHomeView: View {
     @Binding var quizView: Bool
     @Binding var initView: Bool
     
+    @State private var homeHelp: Bool = false
     @State private var cols: Int = 3
     
     var width: CGFloat = 200
@@ -136,6 +137,20 @@ struct blitzHomeView: View {
                             Image(systemName: "sidebar.left")
                         })
                         .help("Toggle Sidebar")
+                    }
+                    ToolbarItem(placement: .automatic) {
+                        Button(action: {
+                            self.homeHelp.toggle()
+                        }, label: {
+                            Label("Help", systemImage: "questionmark")
+                        })
+                        .alert(isPresented: self.$homeHelp) {
+                            Alert(
+                                title: Text("Blitz Help"),
+                                message: Text("Use the navigation bar on the left or press the decks on the right to begin studying!\n\n(By right clicking you can quickly go to a certain study mode)")
+                            )
+                        }
+                        .help("Help")
                     }
                     ToolbarItem(placement: .primaryAction) {
                         Button(action: {
@@ -314,6 +329,8 @@ struct studyNav: View {
     @Binding var fullView: Bool
     @Binding var quizView: Bool
     
+    @State private var helpAlert: Bool = false
+    
     var funcExec: () -> Void = { }
     
     var body: some View {
@@ -351,6 +368,22 @@ struct studyNav: View {
             .help("Quiz Yourself")
             
             Spacer()
+            
+            Button(action: {
+                helpAlert.toggle()
+            }, label: {
+                Image(systemName: "questionmark")
+                    .foregroundColor(Color(NSColor.labelColor))
+            })
+            .alert(isPresented: self.$helpAlert) {
+                Alert(
+                    title: Text("Help"),
+                    message: Text("Use this top navigation bar to quickly flip between study modes.\n\nUse the navigation bar on the left to scroll to cards (Flashcard and Edit mode)\n\nPress the card to flip and swipe the card left or right to dismiss (Test and Quiz mode)")
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.trailing)
+            .help("Help")
             
             Button(action: {
                 closeAll()

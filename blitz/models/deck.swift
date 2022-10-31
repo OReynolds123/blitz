@@ -106,9 +106,6 @@ struct deck: Codable, Identifiable, Hashable {
 //    }
     
     static var example: deck {
-        deck(title: "Example", cards: [card.example, card.example1])
-    }
-    static var example1: deck {
-        deck(title: "Example 1", cards: [card.example1, card.example])
+        deck(title: "Tutorial Deck", cards: [card.example, card.example1, card.example2, card.example3])
     }
 }

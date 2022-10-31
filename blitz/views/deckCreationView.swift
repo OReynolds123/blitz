@@ -84,6 +84,7 @@ struct deckCreation: View {
 
                     Button(action: {
                         self.deckCards.append(card())
+                        self.scrollIndex = self.deckCards.count
                     }, label: {
                         Text("New Card")
                             .foregroundColor(Color("nav_altColor"))
@@ -182,7 +183,7 @@ struct deckCreation: View {
 
                         // Spacer
                         Color.clear
-                            .frame(width: geo.size.width - 14, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
+                            .frame(width: geo.size.width, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
 
                         // Add Card
                         addCardEdit(width: self.width)
@@ -191,6 +192,7 @@ struct deckCreation: View {
                             .frame(height: 60, alignment: .top)
                             .onTapGesture {
                                 self.deckCards.append(card())
+                                self.scrollIndex = self.deckCards.count
                             }
                     }
                 }
@@ -417,7 +419,7 @@ struct CustomTextEditor: View {
         self._text = text
         self.placeholder = placeholder
         self.fontSize = fontSize
-        self.textEditorHeight = fontSize + 17
+        self.textEditorHeight = fontSize + 17 // 17
     }
     
     var body: some View {
@@ -449,11 +451,19 @@ struct CustomTextEditor: View {
             }
         }
         .frame(height: min(self.textEditorHeight, self.height))
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                self.text = self.text + " "
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    self.text = String(self.text.dropLast())
+                }
+            }
+        }
     }
     
     private var coverScrollOverlay: some View {
         Rectangle()
-            .frame(width: 20)
+            .frame(width: 14)
             .foregroundColor(Color("defaultCardBkgColor"))
     }
 }

@@ -41,7 +41,7 @@ class userStore: ObservableObject {
     
     private static func fileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("user_7.data")
+            .appendingPathComponent("user.data")
     }
         
     static func load(completion: @escaping (Result<user, Error>)->Void) {

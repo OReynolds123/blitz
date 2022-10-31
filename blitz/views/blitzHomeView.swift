@@ -15,6 +15,7 @@ struct blitzHomeView: View {
     @Binding var fullView: Bool
     @Binding var quizView: Bool
     @Binding var initView: Bool
+    @Binding var settingsView: Bool
     
     @State private var homeHelp: Bool = false
     @State private var cols: Int = 3
@@ -191,6 +192,9 @@ struct blitzHomeView: View {
         .onChange(of: self.quizView) { _bind in
             load()
         }
+        .onChange(of: self.settingsView) { _bind in
+            load()
+        }
         .onAppear {
             load()
         }
@@ -248,7 +252,7 @@ struct blitzHomeView: View {
 
 struct blitzHomeView_Previews: PreviewProvider {
     static var previews: some View {
-        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), initView: .constant(false))
+        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), initView: .constant(false), settingsView: .constant(false))
     }
 }
 

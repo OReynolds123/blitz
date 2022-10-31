@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		791C3B9028E0E84700A7E6CE /* deckCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B8F28E0E84700A7E6CE /* deckCreationView.swift */; };
 		791C3B9228E0F0BF00A7E6CE /* blitzHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791C3B9128E0F0BF00A7E6CE /* blitzHomeView.swift */; };
+		791D560F29104ED200FF0FD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79A23C9A28DA511500A1DA9E /* Assets.xcassets */; };
+		791D561029104ED300FF0FD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79A23C9A28DA511500A1DA9E /* Assets.xcassets */; };
 		792CA0EC28F8A42F00F3FD75 /* deckFullView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792CA0EB28F8A42F00F3FD75 /* deckFullView.swift */; };
 		79582FA828ECC56300CF974E /* user.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79582FA728ECC56300CF974E /* user.swift */; };
 		797391D92908A1B100CF4715 /* deckQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 797391D82908A1B100CF4715 /* deckQuizView.swift */; };
@@ -282,6 +284,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				791D560F29104ED200FF0FD8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +292,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				791D561029104ED300FF0FD8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,9 +467,8 @@
 		79A23CB928DA511500A1DA9E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = blitz/blitz.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -495,9 +498,8 @@
 		79A23CBA28DA511500A1DA9E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = blitz/blitz.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

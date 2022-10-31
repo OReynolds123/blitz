@@ -16,15 +16,24 @@ struct blitzApp: App {
     @State private var fullView = false
     @State private var quizView = false
     @State private var initView = false
+    @State private var settingsView = false
     
     var body: some Scene {
         WindowGroup {
-            blitzHomeView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, initView: self.$initView)
+            blitzHomeView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, initView: self.$initView, settingsView: self.$settingsView)
                 .sheet(isPresented: self.$initView) {
                     initHelper(initView: self.$initView, creationView: self.$creationView)
                 }
+                .sheet(isPresented: self.$settingsView) {
+                    settingView(settingsView: self.$settingsView)
+                }
         }
         .commands {
+            CommandGroup(replacing: CommandGroupPlacement.appSettings) {
+                Button("Preferences") {
+                    self.settingsView.toggle()
+                }
+            }
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
                 Button("New Deck") {
                     self.userDataStore.userData.append(deck: deck())
@@ -58,6 +67,9 @@ struct blitzApp: App {
         .onChange(of: self.quizView) { _bind in
             load()
         }
+        .onChange(of: self.settingsView) { _bind in
+            load()
+        }
     } //body
     
     private func load() {
@@ -67,6 +79,84 @@ struct blitzApp: App {
                 fatalError(error.localizedDescription)
             case .success(let userData):
                 self.userDataStore.userData = userData
+            }
+        }
+    }
+}
+
+struct settingView: View {
+    @StateObject private var userDataStore = userStore()
+    
+    @Binding var settingsView: Bool
+    
+    @State private var alert: Bool = false
+    
+    var body: some View {
+        VStack {
+            Image("AppIcon")
+                .resizable()
+                .frame(width: 100, height: 100)
+            
+            VStack {
+                Text("Settings")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button(action: {
+                    self.alert = true
+                }, label: {
+                    Text("Reset all user data")
+                })
+                .buttonStyle(DefaultButtonStyle())
+                .foregroundColor(Color(NSColor.systemRed))
+                .alert(isPresented: self.$alert) {
+                    Alert(
+                        title: Text("Are you sure?"),
+                        message: Text("This action cannot be undone!"),
+                        primaryButton: .destructive(
+                            Text("Yes"),
+                            action: {
+                                self.userDataStore.userData = user()
+                                userStore.save(user: self.userDataStore.userData) { result in
+                                    switch result {
+                                    case .failure(let error):
+                                        fatalError(error.localizedDescription)
+                                    case .success(let uuid):
+                                        print(uuid)
+                                    }
+                                }
+                                self.settingsView = false
+                            }
+                        ),
+                        secondaryButton: .default(
+                            Text("No"),
+                            action: { }
+                        )
+                    )
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    self.settingsView = false
+                }, label: {
+                    Text("Close")
+                })
+                .buttonStyle(DefaultButtonStyle())
+            }
+            .offset(x: 0, y: -10)
+        }
+        .frame(width: 250, height: 200)
+        .onAppear {
+            userStore.load { result in
+                switch result {
+                case .failure(let error):
+                    fatalError(error.localizedDescription)
+                case .success(let userData):
+                    self.userDataStore.userData = userData
+                }
             }
         }
     }
@@ -91,11 +181,6 @@ struct initHelper: View {
             Image("AppIcon")
                 .resizable()
                 .frame(width: 150, height: 150)
-            
-//            Text("Start Studying")
-//                .font(.title)
-//
-//            Divider().frame(width: 100)
             
             VStack(alignment: .leading) {
                 Text("Welcome to Blitz where studying using flashcards becomes much quicker and simpler.")

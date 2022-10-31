@@ -198,6 +198,20 @@ struct blitzHomeView: View {
         .onAppear {
             load()
         }
+        .touchBar() {
+            Button(action: {
+                createDeck()
+            }, label: {
+                Label("New Deck", systemImage: "plus")
+            })
+            
+            ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
+                Button(elem.wrappedValue.title, action: {
+                    openDeck(index: index)
+                    self.fullView = true
+                })
+            }
+        }
         .frame(minWidth: 800, minHeight: 500)
     } // body
     

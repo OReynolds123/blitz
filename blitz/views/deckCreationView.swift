@@ -211,6 +211,39 @@ struct deckCreation: View {
                 }
             }
         }
+        .touchBar() {
+            Button(action: {
+                self.deckCards.append(card())
+                self.scrollIndex = self.deckCards.count
+            }, label: {
+                Label("Add Card", systemImage: "plus")
+            })
+            
+            Button(action: {
+                self.creationView = false
+                self.fullView = true
+                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
+                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
+                userStore.save(user: self.userDataStore.userData) { result in
+                    switch result {
+                    case .failure(let error):
+                        fatalError(error.localizedDescription)
+                    case .success(let uuid):
+                        print(uuid)
+                    }
+                }
+            }, label: {
+                Text("Save")
+            })
+            .foregroundColor(Color("nav_closeColor"))
+            
+            Button(action: {
+                self.deleteAlert = true
+            }, label: {
+                Label("Delete Deck", systemImage: "trash")
+            })
+            .foregroundColor(Color("nav_deleteColor"))
+        }
     } // body
 }
 

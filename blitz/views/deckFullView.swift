@@ -124,7 +124,48 @@ struct deckFullView: View {
                 }
             }
         }
-    }
+        .touchBar() {
+            Button(action: {
+                self.fullView = false
+            }, label: {
+                Label("Home", systemImage: "house")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            
+            Button(action: {
+                self.fullView = false
+                self.fullView = true
+            }, label: {
+                Text("Flashcards")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            .foregroundColor(Color("nav_closeColor"))
+            
+            Button(action: {
+                self.fullView = false
+                self.testView = true
+            }, label: {
+                Text("Test Mode")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            
+            Button(action: {
+                self.fullView = false
+                self.quizView = true
+            }, label: {
+                Text("Quiz Mode")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            
+            Button(action: {
+                self.fullView = false
+                self.creationView = true
+            }, label: {
+                Label("Edit", systemImage: "pencil")
+            })
+            .buttonStyle(DefaultButtonStyle())
+        }
+    } // body
 }
 
 struct deckFullView_Previews: PreviewProvider {

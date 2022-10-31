@@ -277,6 +277,52 @@ struct deckQuizView: View {
                 }
             }
         }
+        .touchBar() {
+            Button(action: {
+                saveUserData()
+                self.quizView = false
+            }, label: {
+                Label("Home", systemImage: "house")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            
+            Button(action: {
+                saveUserData()
+                self.quizView = false
+                self.fullView = true
+            }, label: {
+                Text("Flashcards")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            
+            Button(action: {
+                saveUserData()
+                self.quizView = false
+                self.testView = true
+            }, label: {
+                Text("Test Mode")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            
+            Button(action: {
+                saveUserData()
+                self.quizView = false
+                self.quizView = true
+            }, label: {
+                Text("Quiz Mode")
+            })
+            .buttonStyle(DefaultButtonStyle())
+            .foregroundColor(Color("nav_closeColor"))
+            
+            Button(action: {
+                saveUserData()
+                self.quizView = false
+                self.creationView = true
+            }, label: {
+                Label("Edit", systemImage: "pencil")
+            })
+            .buttonStyle(DefaultButtonStyle())
+        }
     } // body
     
     private func drawCardViews() -> [cardView_text] {

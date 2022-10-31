@@ -159,7 +159,7 @@ struct settingView: View {
                 }
             }
         }
-    }
+    } // body
 }
 
 struct initHelper: View {
@@ -214,7 +214,6 @@ struct initHelper: View {
                         self.creationView = true
                     }
                 }
-                
             }, label: {
                 Text("Let's Begin")
             })

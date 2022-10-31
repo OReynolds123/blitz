@@ -13,12 +13,14 @@ struct user: Codable, Identifiable, Hashable {
     let name: String
     var decks: [deck]
     var deckIndex: Int
+    var initialLaunch: Bool
 
-    init(id: UUID = UUID(), name: String = "", decks: [deck] = [deck.example]) {
+    init(id: UUID = UUID(), name: String = "", decks: [deck] = [deck.example], initialLaunch: Bool = true) {
         self.id = id
         self.name = name
         self.decks = decks
         self.deckIndex = 0
+        self.initialLaunch = initialLaunch
     }
     
     mutating func append(deck: deck) {
@@ -27,6 +29,10 @@ struct user: Codable, Identifiable, Hashable {
     
     mutating func changeIndex(index: Int) {
         self.deckIndex = index
+    }
+    
+    mutating func changeInitLaunch() {
+        self.initialLaunch = false
     }
     
     func getDeck() -> deck {
@@ -39,7 +45,7 @@ class userStore: ObservableObject {
     
     private static func fileURL() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appendingPathComponent("blitz_1.data")
+            .appendingPathComponent("blitz_3.data")
     }
         
     static func load(completion: @escaping (Result<user, Error>)->Void) {

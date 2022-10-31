@@ -14,6 +14,7 @@ struct blitzHomeView: View {
     @Binding var testView: Bool
     @Binding var fullView: Bool
     @Binding var quizView: Bool
+    @Binding var initView: Bool
     
     @State private var cols: Int = 3
     
@@ -148,22 +149,22 @@ struct blitzHomeView: View {
                 .sheet(isPresented: self.$creationView) {
                     deckCreation(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                        .background(Color(NSColor.windowBackgroundColor))
+//                        .background(Color(NSColor.windowBackgroundColor))
                 }
                 .sheet(isPresented: self.$testView) {
                     deckTestView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                        .background(Color(NSColor.windowBackgroundColor))
+//                        .background(Color(NSColor.windowBackgroundColor))
                 }
                 .sheet(isPresented: self.$fullView) {
                     deckFullView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                        .background(Color(NSColor.windowBackgroundColor))
+//                        .background(Color(NSColor.windowBackgroundColor))
                 }
                 .sheet(isPresented: self.$quizView) {
                     deckQuizView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
-                        .background(Color(NSColor.windowBackgroundColor))
+//                        .background(Color(NSColor.windowBackgroundColor))
                 }
             } // nav
         } // geo
@@ -181,6 +182,20 @@ struct blitzHomeView: View {
         }
         .onAppear {
             load()
+            print(self.userDataStore.userData.initialLaunch)
+            if self.userDataStore.userData.initialLaunch {
+                self.initView = true
+                self.userDataStore.userData.changeInitLaunch()
+                userStore.save(user: self.userDataStore.userData) { result in
+                    switch result {
+                    case .failure(let error):
+                        fatalError(error.localizedDescription)
+                    case .success(let uuid):
+                        print(uuid)
+                    }
+                }
+            }
+            print(self.userDataStore.userData.initialLaunch)
         }
         .frame(minWidth: 800, minHeight: 500)
     } // body
@@ -224,7 +239,7 @@ struct blitzHomeView: View {
 
 struct blitzHomeView_Previews: PreviewProvider {
     static var previews: some View {
-        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
+        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), initView: .constant(false))
     }
 }
 

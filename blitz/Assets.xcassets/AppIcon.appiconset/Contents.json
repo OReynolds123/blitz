@@ -1,52 +1,182 @@
 {
   "images" : [
     {
+      "filename" : "BLITZ-2.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
       "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "1x",
+      "size" : "16x16"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "1x",
+      "size" : "16x16"
+    },
+    {
+      "filename" : "BLITZ-3.png",
+      "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
       "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "2x",
+      "size" : "16x16"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "2x",
+      "size" : "16x16"
+    },
+    {
+      "filename" : "BLITZ-1.png",
+      "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
       "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "1x",
+      "size" : "32x32"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "1x",
+      "size" : "32x32"
+    },
+    {
+      "filename" : "BLITZ-4.png",
+      "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
+      "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "2x",
+      "size" : "32x32"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "2x",
+      "size" : "32x32"
+    },
+    {
+      "filename" : "BLITZ-5.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
       "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "1x",
+      "size" : "128x128"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "1x",
+      "size" : "128x128"
+    },
+    {
+      "filename" : "BLITZ-6.png",
+      "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
+      "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "2x",
+      "size" : "128x128"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "2x",
+      "size" : "128x128"
+    },
+    {
+      "filename" : "BLITZ-7.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
       "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "1x",
+      "size" : "256x256"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "1x",
+      "size" : "256x256"
+    },
+    {
+      "filename" : "BLITZ-8.png",
+      "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
+      "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "2x",
+      "size" : "256x256"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "2x",
+      "size" : "256x256"
+    },
+    {
+      "filename" : "BLITZ.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
       "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "1x",
+      "size" : "512x512"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
+      "scale" : "1x",
+      "size" : "512x512"
+    },
+    {
+      "filename" : "BLITZ-9.png",
+      "idiom" : "mac",
+      "scale" : "2x",
+      "size" : "512x512"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "left-to-right",
+      "scale" : "2x",
+      "size" : "512x512"
+    },
+    {
+      "idiom" : "mac",
+      "language-direction" : "right-to-left",
       "scale" : "2x",
       "size" : "512x512"
     }

@@ -232,6 +232,7 @@ struct deckQuizView: View {
                     // Text Input
                     let elem = AnyView(
                         TextField("Type the answer here", text: self.$textInput, onCommit: {
+                            if self.deckCardsViews.count == 0 { return }
                             var compareTxt = self.deckCards[self.deckCard_frontIndex].back
                             if (self.cardSide) {
                                 compareTxt = self.deckCards[self.deckCard_frontIndex].front

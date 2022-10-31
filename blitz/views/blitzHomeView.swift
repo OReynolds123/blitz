@@ -2,7 +2,7 @@
 //  blitzHomeView.swift
 //  blitz
 //
-//  Created by Owen Reynolds on 9/25/22.
+//  Created by Owen Reynolds on 9/24/22.
 //
 
 import SwiftUI

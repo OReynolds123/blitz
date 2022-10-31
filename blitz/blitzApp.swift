@@ -93,7 +93,7 @@ struct settingView: View {
     
     var body: some View {
         VStack {
-            Image("AppIcon")
+            Image("ico")
                 .resizable()
                 .frame(width: 100, height: 100)
             
@@ -178,7 +178,7 @@ struct initHelper: View {
     
     var body: some View {
         VStack {
-            Image("AppIcon")
+            Image("ico")
                 .resizable()
                 .frame(width: 150, height: 150)
             

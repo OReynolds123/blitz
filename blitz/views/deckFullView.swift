@@ -23,33 +23,29 @@ struct deckFullView: View {
         NavigationView {
             VStack {
                 Button(action: {
-                    self.fullView = false
+                    self.scrollIndex = 0
                 }, label: {
-                    Label("Home", systemImage: "house")
-                        .foregroundColor(Color("nav_homeColor"))
-                        .padding(.top, 15)
-                        .padding(.bottom, 5)
+                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                        .foregroundColor(Color("nav_titleColor"))
+                        .fontWeight(.semibold)
+                        .font(.title3)
+                        .padding(.top, 20)
+                        .padding(.bottom, 10)
                 })
+                .padding(.horizontal)
                 .buttonStyle(PlainButtonStyle())
-                .help("Return Home")
+                .help("Scroll to Top")
 
                 Divider().padding(.horizontal, 20)
 
                 List {
-                    Button(action: {
-                        self.scrollIndex = 0
-                    }, label: {
-                        Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
-                            .foregroundColor(Color("nav_titleColor"))
-                    })
-                    .buttonStyle(PlainButtonStyle())
-
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Button(action: {
                             self.scrollIndex = index
                         }, label: {
                             Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
                                 .foregroundColor(Color("nav_textColor"))
+                                .fontWeight(.medium)
                         })
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -81,6 +77,7 @@ struct deckFullView: View {
                 .buttonStyle(PlainButtonStyle())
                 .help("Close View")
             } // vstack
+            .background(Color("nav_bkg"))
             
             VStack {
                 studyNav(current: 0, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
@@ -165,6 +162,7 @@ struct deckFullView: View {
             })
             .buttonStyle(DefaultButtonStyle())
         }
+        .background(Color("windowBkg"))
     } // body
 }
 

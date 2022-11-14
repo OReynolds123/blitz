@@ -42,32 +42,33 @@ struct deckTestView: View {
         NavigationView {
             VStack {
                 Button(action: {
-                    saveUserData()
-                    self.testView = false
+//                    saveUserData()
+//                    self.testView = false
                 }, label: {
-                    Label("Home", systemImage: "house")
-                        .foregroundColor(Color("nav_homeColor"))
-                        .padding(.top, 15)
-                        .padding(.bottom, 5)
+                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                        .foregroundColor(Color("nav_titleColor"))
+                        .fontWeight(.semibold)
+                        .font(.title3)
+                        .padding(.top, 20)
+                        .padding(.bottom, 10)
                 })
+                .padding(.horizontal)
                 .buttonStyle(PlainButtonStyle())
-                .help("Return Home")
+//                .help("Scroll to Top")
                 
                 Divider().padding(.horizontal, 20)
 
                 List {
-                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
-                        .foregroundColor(Color("nav_titleColor"))
-                    
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Text(self.cardSide ? (elem.wrappedValue.back == "" ? "Card \(index + 1)" : elem.wrappedValue.back) : (elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front))
                             .foregroundColor(elem.wrappedValue.test_passed ? Color("nav_correctColor") : elem.wrappedValue.test_failed ? Color("nav_incorrectColor") : Color("nav_textColor"))
+                            .fontWeight(.medium)
                     }
                 }
-                .padding()
+                .padding(.horizontal)
 
                 Spacer()
-                
+
                 Button(action: {
                     self.cardSide.toggle()
                 }, label: {
@@ -76,6 +77,17 @@ struct deckTestView: View {
                 })
                 .buttonStyle(PlainButtonStyle())
                 .help("Study the Other Side")
+                
+                Divider().frame(width: 40)
+                
+                Button(action: {
+                    resetDeck()
+                }, label: {
+                    Text("Reset Cards")
+                        .foregroundColor(Color("nav_saveColor"))
+                })
+                .buttonStyle(PlainButtonStyle())
+                .help("Re-study the Deck")
 
                 Divider().padding(.horizontal, 20)
 
@@ -102,6 +114,7 @@ struct deckTestView: View {
                 .buttonStyle(PlainButtonStyle())
                 .help("Close View")
             } // vstack
+            .background(Color("nav_bkg"))
 
             VStack {
                 studyNav(current: 1, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, funcExec: saveUserData)
@@ -113,19 +126,7 @@ struct deckTestView: View {
                         Text("Reset the cards or add more!")
                         HStack {
                             Button(action: {
-                                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].test_reset()
-                                userStore.save(user: self.userDataStore.userData) { result in
-                                    switch result {
-                                    case .failure(let error):
-                                        fatalError(error.localizedDescription)
-                                    case .success(let uuid):
-                                        print(uuid)
-                                    }
-                                }
-                                self.deckCards = self.userDataStore.userData.getDeck().cards
-                                self.deckCard_frontIndex = -1
-                                self.deckCard_backIndex = -1
-                                self.deckCardsViews = drawCardViews()
+                                resetDeck()
                             }, label: {
                                 VStack {
                                     Image(systemName: "arrow.uturn.backward.circle")
@@ -135,7 +136,7 @@ struct deckTestView: View {
                                     Text("Reset")
                                         .offset(x: 0, y:-5)
                                 }
-                                .foregroundColor(Color(NSColor.linkColor))
+                                .foregroundColor(Color("nav_saveColor"))
                             })
                             .buttonStyle(PlainButtonStyle())
                             .help("Re-study the Deck")
@@ -312,6 +313,22 @@ struct deckTestView: View {
                 print(uuid)
             }
         }
+    }
+    
+    private func resetDeck() {
+        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].test_reset()
+        userStore.save(user: self.userDataStore.userData) { result in
+            switch result {
+            case .failure(let error):
+                fatalError(error.localizedDescription)
+            case .success(let uuid):
+                print(uuid)
+            }
+        }
+        self.deckCards = self.userDataStore.userData.getDeck().cards
+        self.deckCard_frontIndex = -1
+        self.deckCard_backIndex = -1
+        self.deckCardsViews = drawCardViews()
     }
 
     private func isTopCard(deckCard: cardView_text) -> Bool {

@@ -169,11 +169,11 @@ struct initHelper: View {
     @Binding var creationView: Bool
     
     private let txtArr: [textArr] = [
-        textArr(title: "Home", desc:"The main home page where you can see all of your study decks. Press on a deck to study it or right click to quickly go to a certain study mode."),
-        textArr(title: "Creation/Edit Mode", desc: "Here you can give a deck title and create cards for studying. Use the Photo-To-Text feature (camera icon on the top right of the card) to quickly add text from your photos!"),
-        textArr(title: "Flashcard Mode", desc: "This mode lets you see the front and back of all of your cards."),
-        textArr(title: "Test Mode", desc: "This mode lets you test yourself. Simply click the card to see the other side and swipe left or right to see the next card. By swipping left, the card will be flagged as correct and will disappear from the deck, and swipping right will flag the card as incorrect and will reappear in the deck. Use the 'Flip Cards' button (bottom of the navigation bar on the left) to flip all of the cards and study the other side."),
-        textArr(title: "Quiz Mode", desc: "This mode lets you quiz yourself. Type the opposite side of the card in the input box and press enter to check yourself. The card will light up green or red depending if you are correct or not. Like Test mode, click the card to see the other side and swipe left or right to see the next card. By swipping left, the card will be flagged as correct and will disappear from the deck, and swipping right will flag the card as incorrect and will reappear in the deck. Use the 'Flip Cards' button (bottom of the navigation bar on the left) to flip all of the cards and study the other side.")
+        textArr(title: "Home", desc:"The Home view contains all study decks. Press on a deck to study it or right click for more options."),
+        textArr(title: "Creation/Edit Mode", desc: "The Edit mode allows you to quickly create flashcards. Use the Photo-To-Text feature (camera icon on the top right of the card) to quickly add text from your photos!"),
+        textArr(title: "Flashcard Mode", desc: "The Flashcard mode allows users to view all of the information within a deck at once."),
+        textArr(title: "Test Mode", desc: "The Test mode allows you to test yourself. Simply click the card to see the other side and swipe to see the next card. Swiping right will flag the card as correct and it will disappear from the deck. Swiping left will flag the card as incorrect and it will remain in the deck."),
+        textArr(title: "Quiz Mode", desc: "The Quiz mode allows you to quiz yourself. Type the opposite side of the card in the input box and press enter to check yourself. The card will light up green or red depending if you are correct or not.")
     ]
     
     var body: some View {

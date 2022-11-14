@@ -41,43 +41,40 @@ struct deckCreation: View {
         NavigationView {
             VStack {
                 Button(action: {
-                    self.creationView = false
-                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
-                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
-                    userStore.save(user: self.userDataStore.userData) { result in
-                        switch result {
-                        case .failure(let error):
-                            fatalError(error.localizedDescription)
-                        case .success(let uuid):
-                            print(uuid)
-                        }
-                    }
+//                    self.creationView = false
+//                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
+//                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
+//                    userStore.save(user: self.userDataStore.userData) { result in
+//                        switch result {
+//                        case .failure(let error):
+//                            fatalError(error.localizedDescription)
+//                        case .success(let uuid):
+//                            print(uuid)
+//                        }
+//                    }
+                    self.scrollIndex = 0
                 }, label: {
-                    Label("Home", systemImage: "house")
-                        .foregroundColor(Color("nav_homeColor"))
-                        .padding(.top, 15)
-                        .padding(.bottom, 5)
+                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                        .foregroundColor(Color("nav_titleColor"))
+                        .fontWeight(.semibold)
+                        .font(.title3)
+                        .padding(.top, 20)
+                        .padding(.bottom, 10)
                 })
+                .padding(.horizontal)
                 .buttonStyle(PlainButtonStyle())
-                .help("Return Home")
+                .help("Scroll to Top")
                 
                 Divider().padding(.horizontal, 20)
                 
                 List {
-                    Button(action: {
-                        self.scrollIndex = 0
-                    }, label: {
-                        Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
-                            .foregroundColor(Color("nav_titleColor"))
-                    })
-                    .buttonStyle(PlainButtonStyle())
-
                     ForEachIndexed(self.$deckCards) { index, elem in
                         Button(action: {
                             self.scrollIndex = index + 1
                         }, label: {
                             Text(elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front)
                                 .foregroundColor(Color("nav_textColor"))
+                                .fontWeight(.medium)
                         })
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -148,12 +145,13 @@ struct deckCreation: View {
                     }
                 }, label: {
                     Text("Save")
-                        .foregroundColor(Color("nav_closeColor"))
+                        .foregroundColor(Color("nav_saveColor"))
                         .padding(.bottom, 15)
                 })
                 .buttonStyle(PlainButtonStyle())
                 .help("Save the Deck")
-            }
+            } // vstack
+            .background(Color("nav_bkg"))
 
             GeometryReader { geo in
                 ScrollView(.vertical, showsIndicators: true) {
@@ -220,6 +218,13 @@ struct deckCreation: View {
             })
             
             Button(action: {
+                self.deleteAlert = true
+            }, label: {
+                Label("Delete Deck", systemImage: "trash")
+            })
+            .foregroundColor(Color("nav_deleteColor"))
+            
+            Button(action: {
                 self.creationView = false
                 self.fullView = true
                 self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
@@ -235,14 +240,7 @@ struct deckCreation: View {
             }, label: {
                 Text("Save")
             })
-            .foregroundColor(Color("nav_closeColor"))
-            
-            Button(action: {
-                self.deleteAlert = true
-            }, label: {
-                Label("Delete Deck", systemImage: "trash")
-            })
-            .foregroundColor(Color("nav_deleteColor"))
+            .foregroundColor(Color("nav_saveColor"))
         }
     } // body
 }

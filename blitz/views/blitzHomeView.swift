@@ -18,6 +18,7 @@ struct blitzHomeView: View {
     @Binding var settingsView: Bool
     
     @State private var homeHelp: Bool = false
+    @State private var deleteAlert: Bool = false
     @State private var cols: Int = 3
     
     var width: CGFloat = 200
@@ -29,13 +30,15 @@ struct blitzHomeView: View {
                     Button(action: {
                         
                     }, label: {
-                        Label("Home", systemImage: "house")
-                            .foregroundColor(Color("nav_homeColor"))
-                            .padding(.top, 15)
-                            .padding(.bottom, 5)
+                        Image("ico")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80)
+                            .padding(.top, -10)
+                            .padding(.bottom, -10)
                     })
                     .buttonStyle(PlainButtonStyle())
-                    .help("Return Home")
+                    .help("Home")
                     
                     Divider().padding(.horizontal, 20)
                     
@@ -46,7 +49,7 @@ struct blitzHomeView: View {
                                 self.fullView = true
                             }, label: {
                                 Text(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title)
-                                    .foregroundColor(Color("nav_textColor"))
+                                    .foregroundColor(Color("nav_titleColor"))
                             })
                             .contextMenu {
                                 Button("View Full Deck") {
@@ -64,6 +67,10 @@ struct blitzHomeView: View {
                                 Button("Edit Deck") {
                                     openDeck(index: index)
                                     self.creationView = true
+                                }
+                                Button("Delete Deck") {
+                                    self.userDataStore.userData.changeIndex(index: index)
+                                    self.deleteAlert = true
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -85,6 +92,37 @@ struct blitzHomeView: View {
                         .help("Add Deck")
                     }
                     .padding(.horizontal)
+                    
+                    Button(action: {
+                        
+                    }, label: {
+                        
+                    })
+                    .hidden()
+                    .alert(isPresented: self.$deleteAlert) {
+                        Alert(
+                            title: Text("Are you sure?"),
+                            message: Text("Are you sure you would like to delete this deck?"),
+                            primaryButton: .destructive(
+                                Text("Yes"),
+                                action: {
+                                    self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
+                                    userStore.save(user: self.userDataStore.userData) { result in
+                                        switch result {
+                                        case .failure(let error):
+                                            fatalError(error.localizedDescription)
+                                        case .success(let uuid):
+                                            print(uuid)
+                                        }
+                                    }
+                                }
+                            ),
+                            secondaryButton: .default(
+                                Text("No"),
+                                action: { }
+                            )
+                        )
+                    }
                     
                     Spacer()
                 } // VStack
@@ -123,6 +161,10 @@ struct blitzHomeView: View {
                                     Button("Edit Deck") {
                                         openDeck(index: index)
                                         self.creationView = true
+                                    }
+                                    Button("Delete Deck") {
+                                        self.userDataStore.userData.changeIndex(index: index)
+                                        self.deleteAlert = true
                                     }
                                 }
                         }
@@ -284,7 +326,7 @@ struct addDeck: View {
                     .resizable()
                     .padding(25)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color("shamrock"))
                     .frame(width: self.width - 100, height: self.width - 100)
             )
             cardStruct(elem: elem, width: self.width)
@@ -360,7 +402,7 @@ struct studyNav: View {
                 self.fullView = true
             }, label: {
                 Label("Flashcards", systemImage: "")
-                    .foregroundColor(self.current == 0 ? Color("nav_closeColor") : Color("nav_titleColor"))
+                    .foregroundColor(self.current == 0 ? Color("nav_saveColor") : Color("nav_titleColor"))
             })
             .buttonStyle(PlainButtonStyle())
             .help("View Flashcards")
@@ -370,7 +412,7 @@ struct studyNav: View {
                 self.testView = true
             }, label: {
                 Label("Test", systemImage: "")
-                    .foregroundColor(self.current == 1 ? Color("nav_closeColor") : Color("nav_titleColor"))
+                    .foregroundColor(self.current == 1 ? Color("nav_saveColor") : Color("nav_titleColor"))
             })
             .buttonStyle(PlainButtonStyle())
             .help("Test Yourself")
@@ -380,7 +422,7 @@ struct studyNav: View {
                 self.quizView = true
             }, label: {
                 Label("Quiz", systemImage: "")
-                    .foregroundColor(self.current == 2 ? Color("nav_closeColor") : Color("nav_titleColor"))
+                    .foregroundColor(self.current == 2 ? Color("nav_saveColor") : Color("nav_titleColor"))
             })
             .buttonStyle(PlainButtonStyle())
             .help("Quiz Yourself")
@@ -413,7 +455,7 @@ struct studyNav: View {
             .help("Close View")
         }
         .padding()
-        .background(Color(red: 235, green: 235, blue: 235, opacity: 0.1))
+        .background(Color("nav_bkgColor_top"))
         .overlay(Divider().background(Color(NSColor.gridColor)), alignment: .bottom)
     }
     

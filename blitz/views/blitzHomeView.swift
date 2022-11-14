@@ -396,36 +396,24 @@ struct studyNav: View {
     var body: some View {
         HStack {
             Spacer()
-                        
-            Button(action: {
-                closeAll()
-                self.fullView = true
-            }, label: {
-                Label("Flashcards", systemImage: "")
-                    .foregroundColor(self.current == 0 ? Color("nav_saveColor") : Color("nav_titleColor"))
-            })
-            .buttonStyle(PlainButtonStyle())
-            .help("View Flashcards")
             
-            Button(action: {
+            Picker("", selection: self.$current) {
+                Label("Flashcards", systemImage: "").tag(0)
+                Label("Test", systemImage: "").tag(1)
+                Label("Quiz", systemImage: "").tag(2)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .onChange(of: self.current) { _ in
                 closeAll()
-                self.testView = true
-            }, label: {
-                Label("Test", systemImage: "")
-                    .foregroundColor(self.current == 1 ? Color("nav_saveColor") : Color("nav_titleColor"))
-            })
-            .buttonStyle(PlainButtonStyle())
-            .help("Test Yourself")
-            
-            Button(action: {
-                closeAll()
-                self.quizView = true
-            }, label: {
-                Label("Quiz", systemImage: "")
-                    .foregroundColor(self.current == 2 ? Color("nav_saveColor") : Color("nav_titleColor"))
-            })
-            .buttonStyle(PlainButtonStyle())
-            .help("Quiz Yourself")
+                if self.current == 0 {
+                    self.fullView = true
+                } else if self.current == 1 {
+                    self.testView = true
+                } else if self.current == 2 {
+                    self.quizView = true
+                }
+            }
+            .padding(.trailing)
             
             Spacer()
             

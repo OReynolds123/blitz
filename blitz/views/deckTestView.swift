@@ -376,7 +376,7 @@ struct deckTestView: View {
         }
         
         if (self.deckCard_backIndex != -1) {
-            self.deckCardsViews.append(cardView_text(card: self.deckCards[self.deckCard_backIndex]))
+            self.deckCardsViews.append(cardView_text(card: self.deckCards[self.deckCard_backIndex], width: self.width, reverse: self.cardSide))
         }
     }
 }

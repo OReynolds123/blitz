@@ -18,6 +18,7 @@ struct deckCreation: View {
     @Binding var testView: Bool
     @Binding var fullView: Bool
     @Binding var quizView: Bool
+    @Binding var deleteAlert: Bool
     
     private var padding: CGFloat = 7.0
     private var space: CGFloat = 0.0
@@ -27,9 +28,8 @@ struct deckCreation: View {
     
     @State private var scrollIndex: Int?
     @State private var height: CGFloat
-    @State private var deleteAlert: Bool = false
     
-    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
+    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>, deleteAlert: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
         self.space = CGFloat((self.width * (3/5)) + CGFloat(2 * self.padding) + 8)
@@ -37,6 +37,7 @@ struct deckCreation: View {
         self._testView = testView
         self._fullView = fullView
         self._quizView = quizView
+        self._deleteAlert = deleteAlert
     }
         
     var body: some View {
@@ -238,7 +239,7 @@ struct deckCreation: View {
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
+        deckCreation(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), deleteAlert: .constant(false))
     }
 }
 

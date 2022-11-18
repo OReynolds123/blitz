@@ -17,15 +17,19 @@ struct blitzApp: App {
     @State private var quizView = false
     @State private var initView = false
     @State private var settingsView = false
+    @State private var homeHelp = false
+    @State private var deleteAlert = false
+    @State private var helpAlert = false
+    @State private var settingsAlert = false
     
     var body: some Scene {
         WindowGroup {
-            blitzHomeView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, initView: self.$initView, settingsView: self.$settingsView)
+            blitzHomeView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, initView: self.$initView, settingsView: self.$settingsView, homeHelp: self.$homeHelp, deleteAlert: self.$deleteAlert, helpAlert: self.$helpAlert)
                 .sheet(isPresented: self.$initView) {
                     initHelper(initView: self.$initView, creationView: self.$creationView)
                 }
                 .sheet(isPresented: self.$settingsView) {
-                    settingView(settingsView: self.$settingsView)
+                    settingView(settingsView: self.$settingsView, settingsAlert: self.$settingsAlert)
                 }
         }
         .commands {
@@ -36,6 +40,10 @@ struct blitzApp: App {
                     self.fullView = false
                     self.quizView = false
                     self.initView = false
+                    self.homeHelp = false
+                    self.deleteAlert = false
+                    self.helpAlert = false
+                    self.settingsAlert = false
                     self.settingsView.toggle()
                 }
             }
@@ -46,6 +54,10 @@ struct blitzApp: App {
                     self.fullView = false
                     self.quizView = false
                     self.settingsView = false
+                    self.homeHelp = false
+                    self.deleteAlert = false
+                    self.helpAlert = false
+                    self.settingsAlert = false
                     self.userDataStore.userData.append(deck: deck())
                     self.userDataStore.userData.changeIndex(index: self.userDataStore.userData.decks.count - 1)
                     userStore.save(user: self.userDataStore.userData) { result in
@@ -79,6 +91,10 @@ struct blitzApp: App {
                     self.fullView = false
                     self.quizView = false
                     self.settingsView = false
+                    self.homeHelp = false
+                    self.deleteAlert = false
+                    self.helpAlert = false
+                    self.settingsAlert = false
                     self.initView.toggle()
                 }
             }
@@ -116,8 +132,7 @@ struct settingView: View {
     @StateObject private var userDataStore = userStore()
     
     @Binding var settingsView: Bool
-    
-    @State private var alert: Bool = false
+    @Binding var settingsAlert: Bool
     
     var body: some View {
         VStack {
@@ -133,13 +148,13 @@ struct settingView: View {
                 Spacer()
                 
                 Button(action: {
-                    self.alert = true
+                    self.settingsAlert = true
                 }, label: {
                     Text("Reset all user data")
                 })
                 .buttonStyle(DefaultButtonStyle())
                 .foregroundColor(Color(NSColor.systemRed))
-                .alert(isPresented: self.$alert) {
+                .alert(isPresented: self.$settingsAlert) {
                     Alert(
                         title: Text("Are you sure?"),
                         message: Text("This action cannot be undone!"),

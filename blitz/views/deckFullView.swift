@@ -14,6 +14,7 @@ struct deckFullView: View {
     @Binding var testView: Bool
     @Binding var fullView: Bool
     @Binding var quizView: Bool
+    @Binding var helpAlert: Bool
     
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
@@ -80,7 +81,7 @@ struct deckFullView: View {
             .background(Color("nav_bkg"))
             
             VStack {
-                studyNav(current: 0, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                studyNav(current: 0, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
                 
                 GeometryReader { geo in
                     ScrollView {
@@ -168,7 +169,7 @@ struct deckFullView: View {
 
 struct deckFullView_Previews: PreviewProvider {
     static var previews: some View {
-        deckFullView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
+        deckFullView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), helpAlert: .constant(false))
     }
 }
 

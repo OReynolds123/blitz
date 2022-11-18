@@ -15,6 +15,7 @@ struct deckQuizView: View {
     @Binding var testView: Bool
     @Binding var fullView: Bool
     @Binding var quizView: Bool
+    @Binding var helpAlert: Bool
         
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
@@ -34,13 +35,14 @@ struct deckQuizView: View {
     @State private var removalTransition  = AnyTransition.trailingBottom
     private let dragThreshold: CGFloat = 80.0
 
-    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
+    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>, helpAlert: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
         self._creationView = creationView
         self._testView = testView
         self._fullView = fullView
         self._quizView = quizView
+        self._helpAlert = helpAlert
     }
 
     var body: some View {
@@ -122,7 +124,7 @@ struct deckQuizView: View {
             .background(Color("nav_bkg"))
 
             VStack {
-                studyNav(current: 2, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, funcExec: saveUserData)
+                studyNav(current: 2, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert, funcExec: saveUserData)
             
                 VStack {
                     Spacer()
@@ -428,7 +430,7 @@ struct deckQuizView: View {
 
 struct deckQuizView_Previews: PreviewProvider {
     static var previews: some View {
-        deckQuizView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false))
+        deckQuizView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), helpAlert: .constant(false))
     }
 }
 

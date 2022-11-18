@@ -16,10 +16,9 @@ struct blitzHomeView: View {
     @Binding var quizView: Bool
     @Binding var initView: Bool
     @Binding var settingsView: Bool
-    
-    @State private var homeHelp: Bool = false
-    @State private var deleteAlert: Bool = false
-    @State private var cols: Int = 3
+    @Binding var homeHelp: Bool
+    @Binding var deleteAlert: Bool
+    @Binding var helpAlert: Bool
     
     var width: CGFloat = 200
     
@@ -205,19 +204,19 @@ struct blitzHomeView: View {
                     }
                 }
                 .sheet(isPresented: self.$creationView) {
-                    deckCreation(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                    deckCreation(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, deleteAlert: self.$deleteAlert)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
                 .sheet(isPresented: self.$testView) {
-                    deckTestView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                    deckTestView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
                 .sheet(isPresented: self.$fullView) {
-                    deckFullView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                    deckFullView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
                 .sheet(isPresented: self.$quizView) {
-                    deckQuizView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView)
+                    deckQuizView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
             } // nav
@@ -308,7 +307,7 @@ struct blitzHomeView: View {
 
 struct blitzHomeView_Previews: PreviewProvider {
     static var previews: some View {
-        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), initView: .constant(false), settingsView: .constant(false))
+        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), initView: .constant(false), settingsView: .constant(false), homeHelp: .constant(false), deleteAlert: .constant(false), helpAlert: .constant(false))
     }
 }
 
@@ -388,9 +387,8 @@ struct studyNav: View {
     @Binding var testView: Bool
     @Binding var fullView: Bool
     @Binding var quizView: Bool
-    
-    @State private var helpAlert: Bool = false
-    
+    @Binding var helpAlert: Bool
+        
     var funcExec: () -> Void = { }
     
     var body: some View {

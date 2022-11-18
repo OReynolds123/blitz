@@ -20,6 +20,7 @@ struct deckCreation: View {
     @Binding var quizView: Bool
     
     private var padding: CGFloat = 7.0
+    private var space: CGFloat = 0.0
 
     @State private var deckTitle: String = ""
     @State private var deckCards: [card] = []
@@ -31,6 +32,7 @@ struct deckCreation: View {
     init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>) {
         self.width = width
         self.height = self.width * (3/5)
+        self.space = CGFloat((self.width * (3/5)) + CGFloat(2 * self.padding) + 8)
         self._creationView = creationView
         self._testView = testView
         self._fullView = fullView
@@ -41,17 +43,6 @@ struct deckCreation: View {
         NavigationView {
             VStack {
                 Button(action: {
-//                    self.creationView = false
-//                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
-//                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
-//                    userStore.save(user: self.userDataStore.userData) { result in
-//                        switch result {
-//                        case .failure(let error):
-//                            fatalError(error.localizedDescription)
-//                        case .success(let uuid):
-//                            print(uuid)
-//                        }
-//                    }
                     self.scrollIndex = 0
                 }, label: {
                     Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
@@ -181,7 +172,7 @@ struct deckCreation: View {
 
                         // Spacer
                         Color.clear
-                            .frame(width: geo.size.width, height: CGFloat(geo.size.height - CGFloat((self.height + CGFloat(2 * self.padding) + 8) * CGFloat(self.deckCards.count + 1)) - 60 - 35))
+                            .frame(width: geo.size.width, height: CGFloat(geo.size.height - (self.space * CGFloat(self.deckCards.count + 1)) - 95))
 
                         // Add Card
                         addCardEdit(width: self.width)
@@ -371,40 +362,45 @@ struct normalCardEdit: View {
         openPanel.begin { (result) -> Void in
             if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
                 // Load image
-                let image = NSImage(contentsOfFile: openPanel.url!.path)!
-                if image.size.width == 0 {
-                    return
-                }
-                
-                // Setup live text request
-                let request = VNRecognizeTextRequest { (request, error) in
-                    guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
-                    
-                    var ocrText = ""
-                    for observation in observations {
-                        guard let topCandidate = observation.topCandidates(1).first else { continue }
-                        ocrText += topCandidate.string + " "
-                    }
-                    
-                    DispatchQueue.main.async {
-                        if !self.press {
-                            self.card.front = self.card.front + ocrText
-                        } else {
-                            self.card.back = self.card.back + ocrText
+                if let imgurl = openPanel.url {
+                    if let image = NSImage(contentsOfFile: imgurl.path) {
+                        if image.size.width == 0 {
+                            return
                         }
-                    }
-                }
-                request.recognitionLevel = .accurate
-                request.recognitionLanguages = ["en-US"]
-                request.usesLanguageCorrection = true
-                
-                // Do request
-                DispatchQueue.main.async {
-                    let requestHandler = VNImageRequestHandler(cgImage: image.cgImage(forProposedRect: nil, context: nil, hints: nil)!, options: [:])
-                    do {
-                        try requestHandler.perform([request])
-                    } catch {
-                        print(error)
+                        
+                        // Setup live text request
+                        let request = VNRecognizeTextRequest { (request, error) in
+                            guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
+                            
+                            var ocrText = ""
+                            for observation in observations {
+                                guard let topCandidate = observation.topCandidates(1).first else { continue }
+                                ocrText += topCandidate.string + " "
+                            }
+                            
+                            DispatchQueue.main.async {
+                                if !self.press {
+                                    self.card.front = self.card.front + ocrText
+                                } else {
+                                    self.card.back = self.card.back + ocrText
+                                }
+                            }
+                        }
+                        request.recognitionLevel = .accurate
+                        request.recognitionLanguages = ["en-US"]
+                        request.usesLanguageCorrection = true
+                        
+                        // Do request
+                        DispatchQueue.main.async {
+                            if let cgimg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                                let requestHandler = VNImageRequestHandler(cgImage: cgimg, options: [:])
+                                do {
+                                    try requestHandler.perform([request])
+                                } catch {
+                                    print(error)
+                                }
+                            }
+                        }
                     }
                 }
             }

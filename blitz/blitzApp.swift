@@ -31,11 +31,21 @@ struct blitzApp: App {
         .commands {
             CommandGroup(replacing: CommandGroupPlacement.appSettings) {
                 Button("Preferences") {
+                    self.creationView = false
+                    self.testView = false
+                    self.fullView = false
+                    self.quizView = false
+                    self.initView = false
                     self.settingsView.toggle()
                 }
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
                 Button("New Deck") {
+                    self.initView = false
+                    self.testView = false
+                    self.fullView = false
+                    self.quizView = false
+                    self.settingsView = false
                     self.userDataStore.userData.append(deck: deck())
                     self.userDataStore.userData.changeIndex(index: self.userDataStore.userData.decks.count - 1)
                     userStore.save(user: self.userDataStore.userData) { result in
@@ -49,8 +59,26 @@ struct blitzApp: App {
                     self.creationView = true
                 }
             }
+            CommandGroup(replacing: CommandGroupPlacement.saveItem) {
+                Button("Close") {
+                    userStore.save(user: self.userDataStore.userData) { result in
+                        switch result {
+                        case .failure(let error):
+                            fatalError(error.localizedDescription)
+                        case .success(let uuid):
+                            print(uuid)
+                            exit(0)
+                        }
+                    }
+                }
+            }
             CommandGroup(replacing: CommandGroupPlacement.help) {
-                Button("Blitz Help") {
+                Button("blitz Help") {
+                    self.creationView = false
+                    self.testView = false
+                    self.fullView = false
+                    self.quizView = false
+                    self.settingsView = false
                     self.initView.toggle()
                 }
             }

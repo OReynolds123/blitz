@@ -348,7 +348,7 @@ struct cardStack: View {
     
     @State private var height: CGFloat
     @State private var offsetAmount: CGFloat = 5
-    @State private var cardAmount = 3
+    @State private var cardAmount: Int = 3
     
     @State private var hover: Bool = false
     
@@ -365,7 +365,7 @@ struct cardStack: View {
                 .padding()
         )
         ZStack {
-            ForEach(0..<self.cardAmount) { i in
+            ForEach(0..<self.cardAmount, id:\.self) { i in
                 cardStruct(elem: elem, width: self.width - (CGFloat(self.cardAmount) * self.offsetAmount))
                     .offset(x: ((CGFloat(i) * -self.offsetAmount) + self.offsetAmount), y: ((CGFloat(i) * self.offsetAmount) - self.offsetAmount))
             }

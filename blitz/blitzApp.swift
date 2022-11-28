@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct blitzApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @StateObject private var userDataStore = userStore()
     
     @State private var creationView = false
@@ -125,6 +127,12 @@ struct blitzApp: App {
                 self.userDataStore.userData = userData
             }
         }
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
     }
 }
 

@@ -75,12 +75,17 @@ struct blitzApp: App {
                     self.saveUserData()
                     self.viewManager.views.creationView = true
                 }
-            }
-            CommandGroup(replacing: CommandGroupPlacement.saveItem) {
-                Button("Close") {
+                Button("Edit Deck") {
                     self.viewManager.views.hideAll()
                     self.saveUserData()
-                }
+                    self.viewManager.views.creationView = true
+                }.disabled(!self.viewManager.views.inDeckViews())
+            }
+            CommandGroup(replacing: CommandGroupPlacement.saveItem) {
+                Button("Close Deck") {
+                    self.viewManager.views.hideAll()
+                    self.saveUserData()
+                }.disabled(!self.viewManager.views.inDeckViews())
             }
             CommandGroup(replacing: CommandGroupPlacement.help) {
                 Button("blitz Help") {
@@ -137,6 +142,10 @@ struct appViews: Codable, Identifiable, Hashable {
         self.deleteAlert = false
         self.helpAlert = false
         self.settingsAlert = false
+    }
+    
+    func inDeckViews() -> Bool {
+        return (self.creationView || self.testView || self.fullView || self.quizView)
     }
 }
 class viewsManager: ObservableObject {

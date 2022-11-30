@@ -8,17 +8,10 @@
 import SwiftUI
 
 struct deckQuizView: View {
-    @StateObject private var userDataStore = userStore()
+    var width: CGFloat = 450
+    @StateObject var userDataStore: userStore
+    @StateObject var viewManager: viewsManager
     
-    var width: CGFloat
-    @Binding var creationView: Bool
-    @Binding var testView: Bool
-    @Binding var fullView: Bool
-    @Binding var quizView: Bool
-    @Binding var helpAlert: Bool
-        
-    @State private var deckTitle: String = ""
-    @State private var deckCards: [card] = []
     @State private var deckCardsViews: [cardView_text] = []
     @State private var deckCard_frontIndex = -1
     @State private var deckCard_backIndex = -1
@@ -29,30 +22,19 @@ struct deckQuizView: View {
     @State private var isIncorrect: Bool = false
     @State private var wrongAttempts: Int = 0
 
-    @State private var height: CGFloat
+    @State private var height: CGFloat = 0.0
 
     @GestureState private var dragState = DragState.inactive
     @State private var removalTransition  = AnyTransition.trailingBottom
     private let dragThreshold: CGFloat = 80.0
 
-    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>, helpAlert: Binding<Bool>) {
-        self.width = width
-        self.height = self.width * (3/5)
-        self._creationView = creationView
-        self._testView = testView
-        self._fullView = fullView
-        self._quizView = quizView
-        self._helpAlert = helpAlert
-    }
-
     var body: some View {
         NavigationView {
             VStack {
                 Button(action: {
-//                    saveUserData()
-//                    self.quizView = false
+                    
                 }, label: {
-                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                    Text(self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title == "" ? "Deck Title" : self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title)
                         .foregroundColor(Color("nav_titleColor"))
                         .fontWeight(.semibold)
                         .font(.title3)
@@ -61,12 +43,11 @@ struct deckQuizView: View {
                 })
                 .padding(.horizontal)
                 .buttonStyle(PlainButtonStyle())
-//                .help("Scroll to Top")
 
                 Divider().padding(.horizontal, 20)
 
                 List {
-                    ForEachIndexed(self.$deckCards) { index, elem in
+                    ForEachIndexed(self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards) { index, elem in
                         Text(self.cardSide ? (elem.wrappedValue.back == "" ? "Card \(index + 1)" : elem.wrappedValue.back) : (elem.wrappedValue.front == "" ? "Card \(index + 1)" : elem.wrappedValue.front))
                             .foregroundColor(elem.wrappedValue.quiz_passed ? Color("nav_correctColor") : elem.wrappedValue.quiz_failed ? Color("nav_incorrectColor") : Color("nav_textColor"))
                             .fontWeight(.medium)
@@ -99,9 +80,8 @@ struct deckQuizView: View {
                 Divider().padding(.horizontal, 20)
 
                 Button(action: {
-                    saveUserData()
-                    self.quizView = false
-                    self.creationView = true
+                    self.exit()
+                    self.viewManager.views.creationView = true
                 }, label: {
                     Text("Edit")
                         .foregroundColor(Color("nav_editColor"))
@@ -111,8 +91,7 @@ struct deckQuizView: View {
                 .help("Edit Deck")
                 
                 Button(action: {
-                    saveUserData()
-                    self.quizView = false
+                    self.exit()
                 }, label: {
                     Text("Close")
                         .foregroundColor(Color("nav_closeColor"))
@@ -124,7 +103,7 @@ struct deckQuizView: View {
             .background(Color("nav_bkg"))
 
             VStack {
-                studyNav(current: 2, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert, funcExec: saveUserData)
+                studyNav(current: 2, viewManager: self.viewManager, funcExec: saveUserData)
             
                 VStack {
                     Spacer()
@@ -154,9 +133,8 @@ struct deckQuizView: View {
                                 Spacer()
                                 
                                 Button(action: {
-                                    saveUserData()
-                                    self.quizView = false
-                                    self.creationView = true
+                                    self.exit()
+                                    self.viewManager.views.creationView = true
                                 }, label: {
                                     VStack {
                                         Image(systemName: "plus.circle")
@@ -236,9 +214,9 @@ struct deckQuizView: View {
                     let elem = AnyView(
                         TextField("Type the answer here", text: self.$textInput, onCommit: {
                             if self.deckCardsViews.count == 0 { return }
-                            var compareTxt = self.deckCards[self.deckCard_frontIndex].back
+                            var compareTxt = self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[self.deckCard_frontIndex].back
                             if (self.cardSide) {
-                                compareTxt = self.deckCards[self.deckCard_frontIndex].front
+                                compareTxt = self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[self.deckCard_frontIndex].front
                             }
                             if (self.textInput != compareTxt) {
                                 withAnimation(.default) {
@@ -268,50 +246,34 @@ struct deckQuizView: View {
                 self.deckCardsViews[i] = cardView_text(card: self.deckCardsViews[i].card, width: self.width, reverse: self.cardSide)
             }
         }
-        .onAppear {
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                    self.deckTitle = userData.getDeck().title
-                    self.deckCards = userData.getDeck().cards
-                    self.deckCardsViews = drawCardViews()
-                }
-            }
-        }
         .touchBar() {
             Button(action: {
                 saveUserData()
-                self.quizView = false
+                self.viewManager.views.quizView = false
             }, label: {
                 Label("Home", systemImage: "house")
             })
             .buttonStyle(DefaultButtonStyle())
             
             Button(action: {
-                saveUserData()
-                self.quizView = false
-                self.fullView = true
+                self.exit()
+                self.viewManager.views.fullView = true
             }, label: {
                 Text("Flashcards")
             })
             .buttonStyle(DefaultButtonStyle())
             
             Button(action: {
-                saveUserData()
-                self.quizView = false
-                self.testView = true
+                self.exit()
+                self.viewManager.views.testView = true
             }, label: {
                 Text("Test Mode")
             })
             .buttonStyle(DefaultButtonStyle())
             
             Button(action: {
-                saveUserData()
-                self.quizView = false
-                self.quizView = true
+                self.exit()
+                self.viewManager.views.quizView = true
             }, label: {
                 Text("Quiz Mode")
             })
@@ -319,62 +281,65 @@ struct deckQuizView: View {
             .foregroundColor(Color("nav_closeColor"))
             
             Button(action: {
-                saveUserData()
-                self.quizView = false
-                self.creationView = true
+                self.exit()
+                self.viewManager.views.creationView = true
             }, label: {
                 Label("Edit", systemImage: "pencil")
             })
             .buttonStyle(DefaultButtonStyle())
         }
+        .background(Color("windowBkg"))
+        .onAppear {
+            self.deckCardsViews = drawCardViews()
+            self.height = self.width * (3/5)
+        }
+        .onExitCommand {
+            self.exit()
+        }
     } // body
+    
+    private func saveUserData() {
+        userStore.save(user: self.userDataStore.userData) { result in
+            switch result {
+            case .failure(let error):
+                fatalError(error.localizedDescription)
+            case .success(let uuid):
+                print(uuid)
+            }
+        }
+    }
+    
+    private func exit() {
+        self.saveUserData()
+        self.viewManager.views.quizView = false
+    }
+    
+    private func resetDeck() {
+        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].quiz_reset()
+        saveUserData()
+        self.deckCard_frontIndex = -1
+        self.deckCard_backIndex = -1
+        self.deckCardsViews = drawCardViews()
+    }
     
     private func drawCardViews() -> [cardView_text] {
         var views: [cardView_text] = []
         var amt = 0
-        for index in 0..<self.deckCards.count {
+        for index in 0..<self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards.count {
             if (amt >= 2) { break }
-            if (!self.deckCards[index].quiz_passed) {
+            if (!self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[index].quiz_passed) {
                 if (amt == 0) {
                     self.deckCard_frontIndex = index
                 } else if (amt == 1) {
                     self.deckCard_backIndex = index
                 }
-                views.append(cardView_text(card: self.deckCards[index], width: self.width, reverse: self.cardSide))
+                views.append(cardView_text(card: self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[index], width: self.width, reverse: self.cardSide))
                 amt += 1
             }
         }
         return views
     }
     
-    private func saveUserData() {
-        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
-        userStore.save(user: self.userDataStore.userData) { result in
-            switch result {
-            case .failure(let error):
-                fatalError(error.localizedDescription)
-            case .success(let uuid):
-                print(uuid)
-            }
-        }
-    }
-    
-    private func resetDeck() {
-        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].quiz_reset()
-        userStore.save(user: self.userDataStore.userData) { result in
-            switch result {
-            case .failure(let error):
-                fatalError(error.localizedDescription)
-            case .success(let uuid):
-                print(uuid)
-            }
-        }
-        self.deckCards = self.userDataStore.userData.getDeck().cards
-        self.deckCard_frontIndex = -1
-        self.deckCard_backIndex = -1
-        self.deckCardsViews = drawCardViews()
-    }
-
     private func isTopCard(deckCard: cardView_text) -> Bool {
         guard let index = self.deckCardsViews.firstIndex(where: { $0.id == deckCard.id }) else {
             return false
@@ -385,14 +350,14 @@ struct deckQuizView: View {
     func getNextIndex() -> Int {
         var i = self.deckCard_frontIndex + 1
         var amt = 0
-        while (amt < self.deckCards.count) {
-            if (i >= self.deckCards.count) {
+        while (amt < self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards.count) {
+            if (i >= self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards.count) {
                 i = 0
             }
             if (i == self.deckCard_frontIndex) {
                 break
             }
-            if (!self.deckCards[i].quiz_passed) {
+            if (!self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[i].quiz_passed) {
                 return i
             }
             i = i + 1
@@ -407,9 +372,9 @@ struct deckQuizView: View {
         
         var didRemove = false
         if (failed) {
-            self.deckCards[self.deckCard_frontIndex].quizFailed()
+            self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[self.deckCard_frontIndex].quizFailed()
         } else {
-            self.deckCards[self.deckCard_frontIndex].quizPassed()
+            self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[self.deckCard_frontIndex].quizPassed()
             self.deckCardsViews.removeFirst()
             didRemove = true
         }
@@ -423,14 +388,14 @@ struct deckQuizView: View {
         }
         
         if (self.deckCard_backIndex != -1) {
-            self.deckCardsViews.append(cardView_text(card: self.deckCards[self.deckCard_backIndex], width: self.width, reverse: self.cardSide))
+            self.deckCardsViews.append(cardView_text(card: self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards[self.deckCard_backIndex], width: self.width, reverse: self.cardSide))
         }
     }
 }
 
 struct deckQuizView_Previews: PreviewProvider {
     static var previews: some View {
-        deckQuizView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), helpAlert: .constant(false))
+        deckQuizView(userDataStore: userStore(), viewManager: viewsManager())
     }
 }
 

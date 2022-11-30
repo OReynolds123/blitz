@@ -9,36 +9,16 @@ import SwiftUI
 import Foundation
 import Vision
 
-// Create a Deck
 struct deckCreation: View {
-    @StateObject private var userDataStore = userStore()
+    var width: CGFloat = 450
+    @StateObject var userDataStore: userStore
+    @StateObject var viewManager: viewsManager
     
-    var width: CGFloat
-    @Binding var creationView: Bool
-    @Binding var testView: Bool
-    @Binding var fullView: Bool
-    @Binding var quizView: Bool
-    @Binding var deleteAlert: Bool
-    
-    private var padding: CGFloat = 7.0
-    private var space: CGFloat = 0.0
-
-    @State private var deckTitle: String = ""
-    @State private var deckCards: [card] = []
+    @State private var padding: CGFloat = 7.0
+    @State private var space: CGFloat = 0.0
     
     @State private var scrollIndex: Int?
-    @State private var height: CGFloat
-    
-    init(width: CGFloat = 450, creationView: Binding<Bool>, testView: Binding<Bool>, fullView: Binding<Bool>, quizView: Binding<Bool>, deleteAlert: Binding<Bool>) {
-        self.width = width
-        self.height = self.width * (3/5)
-        self.space = CGFloat((self.width * (3/5)) + CGFloat(2 * self.padding) + 8)
-        self._creationView = creationView
-        self._testView = testView
-        self._fullView = fullView
-        self._quizView = quizView
-        self._deleteAlert = deleteAlert
-    }
+    @State private var height: CGFloat = 0.0
         
     var body: some View {
         NavigationView {
@@ -46,7 +26,7 @@ struct deckCreation: View {
                 Button(action: {
                     self.scrollIndex = 0
                 }, label: {
-                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                    Text(self.userDataStore.userData.getDeck().title == "" ? "Deck Title" : self.userDataStore.userData.getDeck().title)
                         .foregroundColor(Color("nav_titleColor"))
                         .fontWeight(.semibold)
                         .font(.title3)
@@ -60,7 +40,7 @@ struct deckCreation: View {
                 Divider().padding(.horizontal, 20)
                 
                 List {
-                    ForEachIndexed(self.$deckCards) { index, elem in
+                    ForEachIndexed(self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards) { index, elem in
                         Button(action: {
                             self.scrollIndex = index + 1
                         }, label: {
@@ -72,8 +52,7 @@ struct deckCreation: View {
                     }
 
                     Button(action: {
-                        self.deckCards.append(card())
-                        self.scrollIndex = self.deckCards.count
+                        self.addCard()
                     }, label: {
                         Text("New Card")
                             .foregroundColor(Color("nav_altColor"))
@@ -88,60 +67,26 @@ struct deckCreation: View {
                 Divider().padding(.horizontal, 20)
                 
                 Button(action: {
-                    self.deleteAlert = true
+                    self.exit()
+                    self.viewManager.views.deleteAlert = true
                 }, label: {
                     Text("Delete")
                         .foregroundColor(Color("nav_deleteColor"))
                         .padding(.vertical, 5)
                 })
                 .buttonStyle(PlainButtonStyle())
-                .alert(isPresented: self.$deleteAlert) {
-                    Alert(
-                        title: Text("Are you sure?"),
-                        message: Text("Are you sure you would like to delete this deck?"),
-                        primaryButton: .destructive(
-                            Text("Yes"),
-                            action: {
-                                self.creationView = false
-                                self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
-                                userStore.save(user: self.userDataStore.userData) { result in
-                                    switch result {
-                                    case .failure(let error):
-                                        fatalError(error.localizedDescription)
-                                    case .success(let uuid):
-                                        print(uuid)
-                                    }
-                                }
-                            }
-                        ),
-                        secondaryButton: .default(
-                            Text("No"),
-                            action: { }
-                        )
-                    )
-                }
                 .help("Delete the Deck")
                 
                 Button(action: {
-                    self.creationView = false
-                    self.fullView = true
-                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
-                    self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
-                    userStore.save(user: self.userDataStore.userData) { result in
-                        switch result {
-                        case .failure(let error):
-                            fatalError(error.localizedDescription)
-                        case .success(let uuid):
-                            print(uuid)
-                        }
-                    }
+                    self.exit()
+                    self.viewManager.views.fullView = true
                 }, label: {
-                    Text("Save")
+                    Text("Close")
                         .foregroundColor(Color("nav_saveColor"))
                         .padding(.bottom, 15)
                 })
                 .buttonStyle(PlainButtonStyle())
-                .help("Save the Deck")
+                .help("Close the Deck")
             } // vstack
             .background(Color("nav_bkg"))
 
@@ -149,15 +94,15 @@ struct deckCreation: View {
                 ScrollView(.vertical, showsIndicators: true) {
                     ScrollViewReader { (proxy: ScrollViewProxy) in
                         // Title Card
-                        titleCardEdit(text: self.$deckTitle, width: self.width)
+                        titleCardEdit(text: self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title, width: self.width)
                             .padding(.horizontal)
                             .padding(.vertical, self.padding)
                             .padding(.top, 20)
                             .id(0)
 
                         // Cards
-                        ForEachIndexed(self.$deckCards) { index, elem in
-                            normalCardEdit(cardArr: self.$deckCards, card: elem, width: self.width)
+                        ForEachIndexed(self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards) { index, elem in
+                            normalCardEdit(cardArr: self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards, card: elem, width: self.width)
                                 .padding(.horizontal)
                                 .padding(.vertical, self.padding)
                                 .id(index + 1)
@@ -173,7 +118,7 @@ struct deckCreation: View {
 
                         // Spacer
                         Color.clear
-                            .frame(width: geo.size.width, height: CGFloat(geo.size.height - (self.space * CGFloat(self.deckCards.count + 1)) - 95))
+                            .frame(width: geo.size.width, height: CGFloat(geo.size.height - (self.space * CGFloat(self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards.count + 1)) - 95))
 
                         // Add Card
                         addCardEdit(width: self.width)
@@ -181,65 +126,72 @@ struct deckCreation: View {
                             .padding(.vertical, self.padding)
                             .frame(height: 60, alignment: .top)
                             .onTapGesture {
-                                self.deckCards.append(card())
-                                self.scrollIndex = self.deckCards.count
+                                self.addCard()
                             }
                     }
                 }
                 .frame(width: geo.size.width)
             }
         } // nav
-        .onAppear {
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                    self.deckTitle = userData.getDeck().title
-                    self.deckCards = userData.getDeck().cards
-                }
-            }
-        }
         .touchBar() {
             Button(action: {
-                self.deckCards.append(card())
-                self.scrollIndex = self.deckCards.count
+                self.addCard()
             }, label: {
                 Label("Add Card", systemImage: "plus")
             })
             
             Button(action: {
-                self.deleteAlert = true
+                self.exit()
+                self.viewManager.views.deleteAlert = true
             }, label: {
                 Label("Delete Deck", systemImage: "trash")
             })
             .foregroundColor(Color("nav_deleteColor"))
             
             Button(action: {
-                self.creationView = false
-                self.fullView = true
-                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title = self.deckTitle
-                self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards = self.deckCards
-                userStore.save(user: self.userDataStore.userData) { result in
-                    switch result {
-                    case .failure(let error):
-                        fatalError(error.localizedDescription)
-                    case .success(let uuid):
-                        print(uuid)
-                    }
-                }
+                self.exit()
+                self.viewManager.views.fullView = true
             }, label: {
-                Text("Save")
+                Text("Close")
             })
             .foregroundColor(Color("nav_saveColor"))
         }
+        .background(Color("windowBkg"))
+        .onAppear {
+            self.height = self.width * (3/5)
+            self.space = CGFloat((self.width * (3/5)) + CGFloat(2 * self.padding) + 8)
+        }
+        .onExitCommand {
+            self.exit()
+        }
     } // body
+    
+    private func saveUserData() {
+        userStore.save(user: self.userDataStore.userData) { result in
+            switch result {
+            case .failure(let error):
+                fatalError(error.localizedDescription)
+            case .success(let uuid):
+                print(uuid)
+            }
+        }
+    }
+    
+    private func exit() {
+        self.saveUserData()
+        self.viewManager.views.creationView = false
+    }
+    
+    private func addCard() {
+        self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards.append(card())
+        self.scrollIndex = self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards.count
+        self.saveUserData()
+    }
 }
 
 struct deckCreation_Previews: PreviewProvider {
     static var previews: some View {
-        deckCreation(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), deleteAlert: .constant(false))
+        deckCreation(userDataStore: userStore(), viewManager: viewsManager())
     }
 }
 
@@ -501,42 +453,5 @@ extension NSTextView {
             backgroundColor = .clear
             drawsBackground = true
         }
-    }
-}
-
-// Custom ForEach with Binding
-struct ForEachIndexed<Data: MutableCollection&RandomAccessCollection, RowContent: View, ID: Hashable>: View, DynamicViewContent where Data.Index : Hashable
-{
-    var data: [(Data.Index, Data.Element)] {
-        forEach.data
-    }
-    
-    let forEach: ForEach<[(Data.Index, Data.Element)], ID, RowContent>
-    
-    init(_ data: Binding<Data>,
-         @ViewBuilder rowContent: @escaping (Data.Index, Binding<Data.Element>) -> RowContent
-    ) where Data.Element: Identifiable, Data.Element.ID == ID {
-        forEach = ForEach(
-            Array(zip(data.wrappedValue.indices, data.wrappedValue)),
-            id: \.1.id
-        ) { i, _ in
-            rowContent(i, Binding(get: { data.wrappedValue[i] }, set: { data.wrappedValue[i] = $0 }))
-        }
-    }
-    
-    init(_ data: Binding<Data>,
-         id: KeyPath<Data.Element, ID>,
-         @ViewBuilder rowContent: @escaping (Data.Index, Binding<Data.Element>) -> RowContent
-    ) {
-        forEach = ForEach(
-            Array(zip(data.wrappedValue.indices, data.wrappedValue)),
-            id: (\.1 as KeyPath<(Data.Index, Data.Element), Data.Element>).appending(path: id)
-        ) { i, _ in
-            rowContent(i, Binding(get: { data.wrappedValue[i] }, set: { data.wrappedValue[i] = $0 }))
-        }
-    }
-    
-    var body: some View {
-        forEach
     }
 }

@@ -8,16 +8,9 @@
 import SwiftUI
 
 struct deckFullView: View {
-    @StateObject private var userDataStore = userStore()
+    @StateObject var userDataStore: userStore
+    @StateObject var viewManager: viewsManager
     
-    @Binding var creationView: Bool
-    @Binding var testView: Bool
-    @Binding var fullView: Bool
-    @Binding var quizView: Bool
-    @Binding var helpAlert: Bool
-    
-    @State private var deckTitle: String = ""
-    @State private var deckCards: [card] = []
     @State private var scrollIndex: Int?
         
     var body: some View {
@@ -26,7 +19,7 @@ struct deckFullView: View {
                 Button(action: {
                     self.scrollIndex = 0
                 }, label: {
-                    Text(self.deckTitle == "" ? "Deck Title" : self.deckTitle)
+                    Text(self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title == "" ? "Deck Title" : self.userDataStore.userData.decks[self.userDataStore.userData.deckIndex].title)
                         .foregroundColor(Color("nav_titleColor"))
                         .fontWeight(.semibold)
                         .font(.title3)
@@ -40,7 +33,7 @@ struct deckFullView: View {
                 Divider().padding(.horizontal, 20)
 
                 List {
-                    ForEachIndexed(self.$deckCards) { index, elem in
+                    ForEachIndexed(self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards) { index, elem in
                         Button(action: {
                             self.scrollIndex = index
                         }, label: {
@@ -58,8 +51,8 @@ struct deckFullView: View {
                 Divider().padding(.horizontal, 20)
 
                 Button(action: {
-                    self.fullView = false
-                    self.creationView = true
+                    self.exit()
+                    self.viewManager.views.creationView = true
                 }, label: {
                     Text("Edit")
                         .foregroundColor(Color("nav_editColor"))
@@ -69,7 +62,7 @@ struct deckFullView: View {
                 .help("Edit Deck")
                 
                 Button(action: {
-                    self.fullView = false
+                    self.exit()
                 }, label: {
                     Text("Close")
                         .foregroundColor(Color("nav_closeColor"))
@@ -81,7 +74,7 @@ struct deckFullView: View {
             .background(Color("nav_bkg"))
             
             VStack {
-                studyNav(current: 0, creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
+                studyNav(current: 0, viewManager: self.viewManager)
                 
                 GeometryReader { geo in
                     ScrollView {
@@ -90,7 +83,7 @@ struct deckFullView: View {
                                 .frame(width: geo.size.width) // - 14
                                        
                             VStack {
-                                ForEachIndexed(self.$deckCards) { index, elem in
+                                ForEachIndexed(self.$userDataStore.userData.decks[self.userDataStore.userData.deckIndex].cards) { index, elem in
                                     fullCard(front: elem.wrappedValue.front, back: elem.wrappedValue.back)
                                         .id(index)
                                 }
@@ -110,29 +103,17 @@ struct deckFullView: View {
                 } // geo
             } // vstack
         } // nav
-        .onAppear {
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                    self.deckTitle = userData.getDeck().title
-                    self.deckCards = userData.getDeck().cards
-                }
-            }
-        }
         .touchBar() {
             Button(action: {
-                self.fullView = false
+                self.exit()
             }, label: {
                 Label("Home", systemImage: "house")
             })
             .buttonStyle(DefaultButtonStyle())
             
             Button(action: {
-                self.fullView = false
-                self.fullView = true
+                self.exit()
+                self.viewManager.views.fullView = true
             }, label: {
                 Text("Flashcards")
             })
@@ -140,36 +121,55 @@ struct deckFullView: View {
             .foregroundColor(Color("nav_closeColor"))
             
             Button(action: {
-                self.fullView = false
-                self.testView = true
+                self.exit()
+                self.viewManager.views.testView = true
             }, label: {
                 Text("Test Mode")
             })
             .buttonStyle(DefaultButtonStyle())
             
             Button(action: {
-                self.fullView = false
-                self.quizView = true
+                self.exit()
+                self.viewManager.views.quizView = true
             }, label: {
                 Text("Quiz Mode")
             })
             .buttonStyle(DefaultButtonStyle())
             
             Button(action: {
-                self.fullView = false
-                self.creationView = true
+                self.exit()
+                self.viewManager.views.creationView = true
             }, label: {
                 Label("Edit", systemImage: "pencil")
             })
             .buttonStyle(DefaultButtonStyle())
         }
         .background(Color("windowBkg"))
+        .onExitCommand {
+            self.exit()
+        }
     } // body
+    
+    private func saveUserData() {
+        userStore.save(user: self.userDataStore.userData) { result in
+            switch result {
+            case .failure(let error):
+                fatalError(error.localizedDescription)
+            case .success(let uuid):
+                print(uuid)
+            }
+        }
+    }
+    
+    private func exit() {
+        self.saveUserData()
+        self.viewManager.views.fullView = false
+    }
 }
 
 struct deckFullView_Previews: PreviewProvider {
     static var previews: some View {
-        deckFullView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), helpAlert: .constant(false))
+        deckFullView(userDataStore: userStore(), viewManager: viewsManager())
     }
 }
 

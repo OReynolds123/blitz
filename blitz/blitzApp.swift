@@ -12,119 +12,96 @@ struct blitzApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @StateObject private var userDataStore = userStore()
-    
-    @State private var creationView = false
-    @State private var testView = false
-    @State private var fullView = false
-    @State private var quizView = false
-    @State private var initView = false
-    @State private var settingsView = false
-    @State private var homeHelp = false
-    @State private var deleteAlert = false
-    @State private var helpAlert = false
-    @State private var settingsAlert = false
-    
+    @StateObject private var viewManager = viewsManager()
+
     var body: some Scene {
         WindowGroup {
-            blitzHomeView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, initView: self.$initView, settingsView: self.$settingsView, homeHelp: self.$homeHelp, deleteAlert: self.$deleteAlert, helpAlert: self.$helpAlert)
-                .sheet(isPresented: self.$initView) {
-                    initHelper(initView: self.$initView, creationView: self.$creationView)
+            blitzHomeView(userDataStore: self.userDataStore, viewManager: self.viewManager)
+                .sheet(isPresented: self.$viewManager.views.initView) {
+                    initHelper(userDataStore: self.userDataStore, viewManager: self.viewManager)
                 }
-                .sheet(isPresented: self.$settingsView) {
-                    settingView(settingsView: self.$settingsView, settingsAlert: self.$settingsAlert)
+                .sheet(isPresented: self.$viewManager.views.settingsView) {
+                    settingView(userDataStore: self.userDataStore, viewManager: self.viewManager)
+                }
+                .alert(isPresented: self.$viewManager.views.deleteAlert) {
+                    Alert(
+                        title: Text("Are you sure?"),
+                        message: Text("Are you sure you would like to delete this deck?"),
+                        primaryButton: .destructive(
+                            Text("Yes"),
+                            action: {
+                                self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
+                                self.saveUserData()
+                            }
+                        ),
+                        secondaryButton: .default(
+                            Text("No"),
+                            action: { }
+                        )
+                    )
+                }
+                .onAppear {
+                    userStore.load { result in
+                        switch result {
+                        case .failure(let error):
+                            fatalError(error.localizedDescription)
+                        case .success(let userData):
+                            self.userDataStore.userData = userData
+                            if self.userDataStore.userData.initialLaunch {
+                                self.viewManager.views.initView = true
+                                self.userDataStore.userData.initialLaunch = false
+                                self.saveUserData()
+                            }
+                        }
+                    }
                 }
         }
         .commands {
             CommandGroup(replacing: CommandGroupPlacement.appSettings) {
                 Button("Preferences") {
-                    self.creationView = false
-                    self.testView = false
-                    self.fullView = false
-                    self.quizView = false
-                    self.initView = false
-                    self.homeHelp = false
-                    self.deleteAlert = false
-                    self.helpAlert = false
-                    self.settingsAlert = false
-                    self.settingsView.toggle()
+                    if (self.viewManager.views.settingsView) {
+                        self.viewManager.views.hideAll()
+                    } else {
+                        self.viewManager.views.hideAll()
+                        self.viewManager.views.settingsView = true
+                    }
                 }
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
                 Button("New Deck") {
-                    self.initView = false
-                    self.testView = false
-                    self.fullView = false
-                    self.quizView = false
-                    self.settingsView = false
-                    self.homeHelp = false
-                    self.deleteAlert = false
-                    self.helpAlert = false
-                    self.settingsAlert = false
+                    self.viewManager.views.hideAll()
                     self.userDataStore.userData.append(deck: deck())
                     self.userDataStore.userData.changeIndex(index: self.userDataStore.userData.decks.count - 1)
-                    userStore.save(user: self.userDataStore.userData) { result in
-                        switch result {
-                        case .failure(let error):
-                            fatalError(error.localizedDescription)
-                        case .success(let uuid):
-                            print(uuid)
-                        }
-                    }
-                    self.creationView = true
+                    self.saveUserData()
+                    self.viewManager.views.creationView = true
                 }
             }
             CommandGroup(replacing: CommandGroupPlacement.saveItem) {
                 Button("Close") {
-                    userStore.save(user: self.userDataStore.userData) { result in
-                        switch result {
-                        case .failure(let error):
-                            fatalError(error.localizedDescription)
-                        case .success(let uuid):
-                            print(uuid)
-                            exit(0)
-                        }
-                    }
+                    self.viewManager.views.hideAll()
+                    self.saveUserData()
                 }
             }
             CommandGroup(replacing: CommandGroupPlacement.help) {
                 Button("blitz Help") {
-                    self.creationView = false
-                    self.testView = false
-                    self.fullView = false
-                    self.quizView = false
-                    self.settingsView = false
-                    self.homeHelp = false
-                    self.deleteAlert = false
-                    self.helpAlert = false
-                    self.settingsAlert = false
-                    self.initView.toggle()
+                    if (self.viewManager.views.initView) {
+                        self.viewManager.views.hideAll()
+                    } else {
+                        self.viewManager.views.hideAll()
+                        self.viewManager.views.initView = true
+                    }
                 }
             }
         } // commands
-        .onChange(of: self.fullView) { _bind in
-            load()
-        }
-        .onChange(of: self.creationView) { _bind in
-            load()
-        }
-        .onChange(of: self.testView) { _bind in
-            load()
-        }
-        .onChange(of: self.quizView) { _bind in
-            load()
-        }
-        .onChange(of: self.settingsView) { _bind in
-            load()
-        }
     } //body
     
-    private func load() {
-        userStore.load { result in
+    func saveUserData() {
+        userStore.save(user: self.userDataStore.userData) { result in
             switch result {
             case .failure(let error):
                 fatalError(error.localizedDescription)
-            case .success(let userData):
-                self.userDataStore.userData = userData
+            case .success(let uuid):
+                print(uuid)
             }
         }
     }
@@ -136,11 +113,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-struct settingView: View {
-    @StateObject private var userDataStore = userStore()
+struct appViews: Codable, Identifiable, Hashable {
+    var id: UUID = UUID()
+    var creationView = false
+    var testView = false
+    var fullView = false
+    var quizView = false
+    var initView = false
+    var settingsView = false
+    var homeHelp = false
+    var deleteAlert = false
+    var helpAlert = false
+    var settingsAlert = false
     
-    @Binding var settingsView: Bool
-    @Binding var settingsAlert: Bool
+    mutating func hideAll() {
+        self.creationView = false
+        self.testView = false
+        self.fullView = false
+        self.quizView = false
+        self.initView = false
+        self.settingsView = false
+        self.homeHelp = false
+        self.deleteAlert = false
+        self.helpAlert = false
+        self.settingsAlert = false
+    }
+}
+class viewsManager: ObservableObject {
+    @Published var views: appViews = appViews()
+}
+
+struct settingView: View {
+    @StateObject var userDataStore: userStore
+    @StateObject var viewManager: viewsManager
     
     var body: some View {
         VStack {
@@ -156,13 +161,13 @@ struct settingView: View {
                 Spacer()
                 
                 Button(action: {
-                    self.settingsAlert = true
+                    self.viewManager.views.settingsAlert = true
                 }, label: {
                     Text("Reset all user data")
                 })
                 .buttonStyle(DefaultButtonStyle())
                 .foregroundColor(Color(NSColor.systemRed))
-                .alert(isPresented: self.$settingsAlert) {
+                .alert(isPresented: self.$viewManager.views.settingsAlert) {
                     Alert(
                         title: Text("Are you sure?"),
                         message: Text("This action cannot be undone!"),
@@ -176,9 +181,11 @@ struct settingView: View {
                                         fatalError(error.localizedDescription)
                                     case .success(let uuid):
                                         print(uuid)
+                                        self.viewManager.views.settingsView = false
+                                        self.viewManager.views.initView = true
+                                        self.userDataStore.userData.initialLaunch = false
                                     }
                                 }
-                                self.settingsView = false
                             }
                         ),
                         secondaryButton: .default(
@@ -191,7 +198,7 @@ struct settingView: View {
                 Spacer()
                 
                 Button(action: {
-                    self.settingsView = false
+                    self.viewManager.views.settingsView = false
                 }, label: {
                     Text("Close")
                 })
@@ -200,24 +207,12 @@ struct settingView: View {
             .offset(x: 0, y: -10)
         }
         .frame(width: 250, height: 200)
-        .onAppear {
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                }
-            }
-        }
     } // body
 }
 
 struct initHelper: View {
-    @StateObject private var userDataStore = userStore()
-    
-    @Binding var initView: Bool
-    @Binding var creationView: Bool
+    @StateObject var userDataStore: userStore
+    @StateObject var viewManager: viewsManager
     
     private let txtArr: [textArr] = [
         textArr(title: "Home", desc:"The Home view contains all study decks. Press on a deck to study it or right click for more options."),
@@ -250,19 +245,11 @@ struct initHelper: View {
             }
             
             Button(action: {
-                self.initView = false
+                self.viewManager.views.initView = false
                 if self.userDataStore.userData.decks.count > 0 {
                     if self.userDataStore.userData.decks[0].title == "Tutorial Deck" {
                         self.userDataStore.userData.changeIndex(index: 0)
-                        userStore.save(user: self.userDataStore.userData) { result in
-                            switch result {
-                            case .failure(let error):
-                                fatalError(error.localizedDescription)
-                            case .success(let uuid):
-                                print(uuid)
-                            }
-                        }
-                        self.creationView = true
+                        self.viewManager.views.creationView = true
                     }
                 }
             }, label: {
@@ -272,21 +259,48 @@ struct initHelper: View {
         }
         .padding()
         .frame(idealWidth: 600)
-        .onAppear {
-            userStore.load { result in
-                switch result {
-                case .failure(let error):
-                    fatalError(error.localizedDescription)
-                case .success(let userData):
-                    self.userDataStore.userData = userData
-                }
-            }
-        }
     } // body
     
     private struct textArr: Identifiable {
         let title: String
         let desc: String
         var id: String { title }
+    }
+}
+
+// Custom ForEach with Binding
+struct ForEachIndexed<Data: MutableCollection&RandomAccessCollection, RowContent: View, ID: Hashable>: View, DynamicViewContent where Data.Index : Hashable
+{
+    var data: [(Data.Index, Data.Element)] {
+        forEach.data
+    }
+    
+    let forEach: ForEach<[(Data.Index, Data.Element)], ID, RowContent>
+    
+    init(_ data: Binding<Data>,
+         @ViewBuilder rowContent: @escaping (Data.Index, Binding<Data.Element>) -> RowContent
+    ) where Data.Element: Identifiable, Data.Element.ID == ID {
+        forEach = ForEach(
+            Array(zip(data.wrappedValue.indices, data.wrappedValue)),
+            id: \.1.id
+        ) { i, _ in
+            rowContent(i, Binding(get: { data.wrappedValue[i] }, set: { data.wrappedValue[i] = $0 }))
+        }
+    }
+    
+    init(_ data: Binding<Data>,
+         id: KeyPath<Data.Element, ID>,
+         @ViewBuilder rowContent: @escaping (Data.Index, Binding<Data.Element>) -> RowContent
+    ) {
+        forEach = ForEach(
+            Array(zip(data.wrappedValue.indices, data.wrappedValue)),
+            id: (\.1 as KeyPath<(Data.Index, Data.Element), Data.Element>).appending(path: id)
+        ) { i, _ in
+            rowContent(i, Binding(get: { data.wrappedValue[i] }, set: { data.wrappedValue[i] = $0 }))
+        }
+    }
+    
+    var body: some View {
+        forEach
     }
 }

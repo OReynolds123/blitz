@@ -8,17 +8,8 @@
 import SwiftUI
 
 struct blitzHomeView: View {
-    @StateObject private var userDataStore = userStore()
-    
-    @Binding var creationView: Bool
-    @Binding var testView: Bool
-    @Binding var fullView: Bool
-    @Binding var quizView: Bool
-    @Binding var initView: Bool
-    @Binding var settingsView: Bool
-    @Binding var homeHelp: Bool
-    @Binding var deleteAlert: Bool
-    @Binding var helpAlert: Bool
+    @StateObject var userDataStore: userStore
+    @StateObject var viewManager: viewsManager
     
     var width: CGFloat = 200
     
@@ -44,32 +35,32 @@ struct blitzHomeView: View {
                     List {
                         ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
                             Button(action: {
-                                openDeck(index: index)
-                                self.fullView = true
+                                self.userDataStore.userData.changeIndex(index: index)
+                                self.viewManager.views.fullView = true
                             }, label: {
                                 Text(elem.wrappedValue.title == "" ? "Deck \(index + 1)" : elem.wrappedValue.title)
                                     .foregroundColor(Color("nav_titleColor"))
                             })
                             .contextMenu {
                                 Button("View Full Deck") {
-                                    openDeck(index: index)
-                                    self.fullView = true
+                                    self.userDataStore.userData.changeIndex(index: index)
+                                    self.viewManager.views.fullView = true
                                 }
                                 Button("Test Yourself") {
-                                    openDeck(index: index)
-                                    self.testView = true
+                                    self.userDataStore.userData.changeIndex(index: index)
+                                    self.viewManager.views.testView = true
                                 }
                                 Button("Quiz Yourself") {
-                                    openDeck(index: index)
-                                    self.quizView = true
+                                    self.userDataStore.userData.changeIndex(index: index)
+                                    self.viewManager.views.quizView = true
                                 }
                                 Button("Edit Deck") {
-                                    openDeck(index: index)
-                                    self.creationView = true
+                                    self.userDataStore.userData.changeIndex(index: index)
+                                    self.viewManager.views.creationView = true
                                 }
                                 Button("Delete Deck") {
                                     self.userDataStore.userData.changeIndex(index: index)
-                                    self.deleteAlert = true
+                                    self.viewManager.views.deleteAlert = true
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -92,37 +83,6 @@ struct blitzHomeView: View {
                     }
                     .padding(.horizontal)
                     
-                    Button(action: {
-                        
-                    }, label: {
-                        
-                    })
-                    .hidden()
-                    .alert(isPresented: self.$deleteAlert) {
-                        Alert(
-                            title: Text("Are you sure?"),
-                            message: Text("Are you sure you would like to delete this deck?"),
-                            primaryButton: .destructive(
-                                Text("Yes"),
-                                action: {
-                                    self.userDataStore.userData.decks.remove(at: self.userDataStore.userData.deckIndex)
-                                    userStore.save(user: self.userDataStore.userData) { result in
-                                        switch result {
-                                        case .failure(let error):
-                                            fatalError(error.localizedDescription)
-                                        case .success(let uuid):
-                                            print(uuid)
-                                        }
-                                    }
-                                }
-                            ),
-                            secondaryButton: .default(
-                                Text("No"),
-                                action: { }
-                            )
-                        )
-                    }
-                    
                     Spacer()
                 } // VStack
 
@@ -141,29 +101,29 @@ struct blitzHomeView: View {
                         ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
                             cardStack(title: elem.title.wrappedValue, width: self.width)
                                 .onTapGesture {
-                                    openDeck(index: index)
-                                    self.fullView = true
+                                    self.userDataStore.userData.changeIndex(index: index)
+                                    self.viewManager.views.fullView = true
                                 }
                                 .contextMenu {
                                     Button("View Deck") {
-                                        openDeck(index: index)
-                                        self.fullView = true
+                                        self.userDataStore.userData.changeIndex(index: index)
+                                        self.viewManager.views.fullView = true
                                     }
                                     Button("Test Yourself") {
-                                        openDeck(index: index)
-                                        self.testView = true
+                                        self.userDataStore.userData.changeIndex(index: index)
+                                        self.viewManager.views.testView = true
                                     }
                                     Button("Quiz Yourself") {
-                                        openDeck(index: index)
-                                        self.quizView = true
+                                        self.userDataStore.userData.changeIndex(index: index)
+                                        self.viewManager.views.quizView = true
                                     }
                                     Button("Edit Deck") {
-                                        openDeck(index: index)
-                                        self.creationView = true
+                                        self.userDataStore.userData.changeIndex(index: index)
+                                        self.viewManager.views.creationView = true
                                     }
                                     Button("Delete Deck") {
                                         self.userDataStore.userData.changeIndex(index: index)
-                                        self.deleteAlert = true
+                                        self.viewManager.views.deleteAlert = true
                                     }
                                 }
                         }
@@ -182,11 +142,11 @@ struct blitzHomeView: View {
                     }
                     ToolbarItem(placement: .automatic) {
                         Button(action: {
-                            self.homeHelp.toggle()
+                            self.viewManager.views.homeHelp.toggle()
                         }, label: {
                             Label("Help", systemImage: "questionmark")
                         })
-                        .alert(isPresented: self.$homeHelp) {
+                        .alert(isPresented: self.$viewManager.views.homeHelp) {
                             Alert(
                                 title: Text("Blitz Help"),
                                 message: Text("Use the navigation bar on the left or press the decks on the right to begin studying!\n\n(By right clicking you can quickly go to a certain study mode)")
@@ -203,42 +163,24 @@ struct blitzHomeView: View {
                         .help("Add Deck")
                     }
                 }
-                .sheet(isPresented: self.$creationView) {
-                    deckCreation(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, deleteAlert: self.$deleteAlert)
+                .sheet(isPresented: self.$viewManager.views.creationView) {
+                    deckCreation(userDataStore: self.userDataStore, viewManager: self.viewManager)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
-                .sheet(isPresented: self.$testView) {
-                    deckTestView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
+                .sheet(isPresented: self.$viewManager.views.testView) {
+                    deckTestView(userDataStore: self.userDataStore, viewManager: self.viewManager)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
-                .sheet(isPresented: self.$fullView) {
-                    deckFullView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
+                .sheet(isPresented: self.$viewManager.views.fullView) {
+                    deckFullView(userDataStore: self.userDataStore, viewManager: self.viewManager)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
-                .sheet(isPresented: self.$quizView) {
-                    deckQuizView(creationView: self.$creationView, testView: self.$testView, fullView: self.$fullView, quizView: self.$quizView, helpAlert: self.$helpAlert)
+                .sheet(isPresented: self.$viewManager.views.quizView) {
+                    deckQuizView(userDataStore: self.userDataStore, viewManager: self.viewManager)
                         .frame(width: geo.size.width - 10, height: geo.size.height - 10, alignment: .center)
                 }
             } // nav
         } // geo
-        .onChange(of: self.fullView) { _bind in
-            load()
-        }
-        .onChange(of: self.creationView) { _bind in
-            load()
-        }
-        .onChange(of: self.testView) { _bind in
-            load()
-        }
-        .onChange(of: self.quizView) { _bind in
-            load()
-        }
-        .onChange(of: self.settingsView) { _bind in
-            load()
-        }
-        .onAppear {
-            load()
-        }
         .touchBar() {
             Button(action: {
                 createDeck()
@@ -248,51 +190,18 @@ struct blitzHomeView: View {
             
             ForEachIndexed(self.$userDataStore.userData.decks) { index, elem in
                 Button(elem.wrappedValue.title, action: {
-                    openDeck(index: index)
-                    self.fullView = true
+                    self.userDataStore.userData.changeIndex(index: index)
+                    self.viewManager.views.fullView = true
                 })
             }
         }
         .frame(minWidth: 800, minHeight: 500)
     } // body
     
-    private func load() {
-        userStore.load { result in
-            switch result {
-            case .failure(let error):
-                fatalError(error.localizedDescription)
-            case .success(let userData):
-                self.userDataStore.userData = userData
-                if self.userDataStore.userData.initialLaunch {
-                    self.initView = true
-                    self.userDataStore.userData.initialLaunch = false
-                    userStore.save(user: self.userDataStore.userData) { result in
-                        switch result {
-                        case .failure(let error):
-                            fatalError(error.localizedDescription)
-                        case .success(let uuid):
-                            print(uuid)
-                        }
-                    }
-                }
-            }
-        }
-    }
     private func createDeck() {
         self.userDataStore.userData.append(deck: deck())
-        openDeck(index: self.userDataStore.userData.decks.count - 1)
-        self.creationView = true
-    }
-    private func openDeck(index: Int) {
-        self.userDataStore.userData.changeIndex(index: index)
-        userStore.save(user: self.userDataStore.userData) { result in
-            switch result {
-            case .failure(let error):
-                fatalError(error.localizedDescription)
-            case .success(let uuid):
-                print(uuid)
-            }
-        }
+        self.userDataStore.userData.changeIndex(index: self.userDataStore.userData.decks.count - 1)
+        self.viewManager.views.creationView = true
     }
     
     private func toggleSidebar() {
@@ -307,7 +216,7 @@ struct blitzHomeView: View {
 
 struct blitzHomeView_Previews: PreviewProvider {
     static var previews: some View {
-        blitzHomeView(creationView: .constant(false), testView: .constant(false), fullView: .constant(false), quizView: .constant(false), initView: .constant(false), settingsView: .constant(false), homeHelp: .constant(false), deleteAlert: .constant(false), helpAlert: .constant(false))
+        blitzHomeView(userDataStore: userStore(), viewManager: viewsManager())
     }
 }
 
@@ -383,11 +292,7 @@ struct cardStack: View {
 struct studyNav: View {
     @State var current: Int
     
-    @Binding var creationView: Bool
-    @Binding var testView: Bool
-    @Binding var fullView: Bool
-    @Binding var quizView: Bool
-    @Binding var helpAlert: Bool
+    @StateObject var viewManager: viewsManager
         
     var funcExec: () -> Void = { }
     
@@ -404,11 +309,11 @@ struct studyNav: View {
             .onChange(of: self.current) { _ in
                 closeAll()
                 if self.current == 0 {
-                    self.fullView = true
+                    self.viewManager.views.fullView = true
                 } else if self.current == 1 {
-                    self.testView = true
+                    self.viewManager.views.testView = true
                 } else if self.current == 2 {
-                    self.quizView = true
+                    self.viewManager.views.quizView = true
                 }
             }
             .padding(.trailing)
@@ -416,12 +321,12 @@ struct studyNav: View {
             Spacer()
             
             Button(action: {
-                helpAlert.toggle()
+                self.viewManager.views.helpAlert.toggle()
             }, label: {
                 Image(systemName: "questionmark")
                     .foregroundColor(Color(NSColor.labelColor))
             })
-            .alert(isPresented: self.$helpAlert) {
+            .alert(isPresented: self.$viewManager.views.helpAlert) {
                 Alert(
                     title: Text("Help"),
                     message: Text("Use this top navigation bar to quickly flip between study modes.\n\nUse the navigation bar on the left to scroll to cards (Flashcard and Edit mode)\n\nPress the card to flip and swipe the card left or right to dismiss (Test and Quiz mode)")
@@ -447,9 +352,9 @@ struct studyNav: View {
     
     private func closeAll() {
         self.funcExec()
-        self.fullView = false
-        self.testView = false
-        self.quizView = false
-        self.creationView = false
+        self.viewManager.views.fullView = false
+        self.viewManager.views.testView = false
+        self.viewManager.views.quizView = false
+        self.viewManager.views.creationView = false
     }
 }

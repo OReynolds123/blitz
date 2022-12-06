@@ -311,7 +311,7 @@ struct normalCardEdit: View {
         openPanel.canChooseDirectories = false
         openPanel.canCreateDirectories = false
         openPanel.canChooseFiles = true
-        openPanel.allowedFileTypes = ["png","jpg","jpeg"]
+        openPanel.allowedFileTypes = ["png","jpg","jpeg", "heic"]
         openPanel.begin { (result) -> Void in
             if result.rawValue == NSApplication.ModalResponse.OK.rawValue {
                 // Load image
